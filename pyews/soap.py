@@ -61,11 +61,12 @@ class SoapConnectionError(Exception):
     pass
 
 class SoapClient(object):
-    def __init__ (self, service_url, user, pwd):
+    def __init__ (self, service_url, user, pwd, cert=False):
         self.url = service_url
         self.user = user
         self.pwd = pwd
         self.auth = HTTPBasicAuth(user, pwd)
+        self.cert = cert
 
     def send (self, request, debug=False):
         """
@@ -78,7 +79,8 @@ class SoapClient(object):
         try:
             r = requests.post(self.url, auth=self.auth, data=request,
                               headers={'Content-Type':'text/xml; charset=utf-8',
-                                       "Accept": "text/xml"})
+                                       "Accept": "text/xml"},
+                              verify="/opt/odoo/authentication/java.pem")
         except requests.exceptions.ConnectionError as e:
             raise SoapConnectionError(e)
 

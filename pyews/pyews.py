@@ -278,7 +278,8 @@ class ExchangeService(object):
 
     def init_soap_client (self):
         self.soap = SoapClient(self.Url, user=self.credentials.user,
-                               pwd=self.credentials.pwd)
+                               pwd=self.credentials.pwd,
+                               cert=self.credentials.cert)
 
     def send (self, req, debug=False):
         """
