@@ -60,7 +60,7 @@ class WebCredentials(object):
         self.pwd  = pwd
 
 class ExchangeService(object):
-    def __init__ (self):
+    def __init__(self):
         self.ews_ad = None
         self.credentials = None
         self.root_folder = None
