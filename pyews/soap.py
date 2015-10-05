@@ -85,7 +85,7 @@ class SoapClient(object):
         if debug:
             logging.debug('%s', pretty_xml(r.text))
 
-        return SoapClient.parse_xml(r.text)
+        return SoapClient.parse_xml(r.text.encode('utf-8'))
 
     @staticmethod
     def parse_xml (soap_resp):
