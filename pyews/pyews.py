@@ -55,9 +55,10 @@ class InvalidUserEmail(Exception):
     pass
 
 class WebCredentials(object):
-    def __init__ (self, user, pwd):
+    def __init__ (self, user, pwd, cert=False):
         self.user = user
         self.pwd  = pwd
+        self.cert  = cert
 
 class ExchangeService(object):
     def __init__(self):
@@ -277,7 +278,8 @@ class ExchangeService(object):
     ##
 
     def init_soap_client (self):
-        self.soap = SoapClient(self.Url, user=self.credentials.user,
+        self.soap = SoapClient(self.Url, 
+                               user=self.credentials.user,
                                pwd=self.credentials.pwd,
                                cert=self.credentials.cert)
 
