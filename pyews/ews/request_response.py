@@ -52,7 +52,7 @@ class Request(object):
     ## Public methods
     ##
 
-    def request_server (self, debug=False):
+    def request_server (self, debug=True):
         r = self.ews.loader.load(self.template).generate(**self.kwargs)
         r = utils.pretty_xml(r)
 
@@ -100,7 +100,8 @@ class Response(object):
             self.fault_code = fault.find('faultcode').text
             self.fault_str  = fault.find('faultstring').text
             self.has_faults = True
-
+            logging.error('Fault %s found in request : %s' % (self.fault_code,
+                                                              self.fault_str))
             raise EWSMessageError(self)
 
     def parse_for_errors (self, tag, succ_func=None):
@@ -181,7 +182,7 @@ class GetFolderRequest(Request):
     ##
 
     def execute (self):
-        self.resp_node = self.request_server(debug=False)
+        self.resp_node = self.request_server(debug=True)
         self.resp_obj = GetFolderResponse(self, self.resp_node)
 
         return self.resp_obj
@@ -294,7 +295,7 @@ class FindFoldersRequest(Request):
     ##
 
     def execute (self):
-        self.resp_node = self.request_server(debug=False)
+        self.resp_node = self.request_server(debug=True)
         self.resp_obj = FindFoldersResponse(self, self.resp_node)
 
         return self.resp_obj
@@ -335,7 +336,7 @@ class FindItemsRequest(Request):
     ##
 
     def execute (self):
-        self.resp_node = self.request_server(debug=False)
+        self.resp_node = self.request_server(debug=True)
         self.resp_obj = FindItemsResponse(self, self.resp_node)
 
         return self.resp_obj
@@ -375,7 +376,7 @@ class FindItemsLMTRequest(Request):
 
     def execute (self):
         print '*** WTF: ', self.kwargs
-        self.resp_node = self.request_server(debug=False)
+        self.resp_node = self.request_server(debug=True)
         self.resp_obj = FindItemsLMTResponse(self, self.resp_node)
 
         return self.resp_obj
@@ -462,7 +463,7 @@ class UpdateItemsRequest(Request):
     ##
 
     def execute (self):
-        self.resp_node = self.request_server(debug=False)
+        self.resp_node = self.request_server(debug=True)
         self.resp_obj = UpdateItemsResponse(self, self.resp_node)
         self.update_change_keys()
 
@@ -516,7 +517,7 @@ class SyncFolderItemsRequest(Request):
     ##
 
     def execute (self):
-        self.resp_node = self.request_server(debug=False)
+        self.resp_node = self.request_server(debug=True)
         self.resp_obj = SyncFolderItemsResponse(self, self.resp_node)
 
         return self.resp_obj

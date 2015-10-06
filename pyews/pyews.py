@@ -281,7 +281,7 @@ class ExchangeService(object):
                                pwd=self.credentials.pwd,
                                cert=self.credentials.cert)
 
-    def send (self, req, debug=False):
+    def send (self, req, debug=True):
         """
         Will raise a SoapConnectionError if there is a connection problem.
         """

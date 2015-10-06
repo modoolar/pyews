@@ -22,6 +22,7 @@ from   requests.auth import HTTPBasicAuth
 import xml.etree.ElementTree as ET
 import utils
 from   utils import pretty_xml
+import pdb
 
 E_NAMESPACE = 'http://schemas.microsoft.com/exchange/services/2006/errors'
 M_NAMESPACE = 'http://schemas.microsoft.com/exchange/services/2006/messages'
@@ -68,24 +69,25 @@ class SoapClient(object):
         self.auth = HTTPBasicAuth(user, pwd)
         self.cert = cert
 
-    def send (self, request, debug=False):
+    def send (self, request, debug=True):
         """
         Send the given rquest to the server, and return the response text as
         well as a parsed node object as a (resp.text, node) tuple.
 
         The response text is the raw xml including the soap headers and stuff.
         """
-
+        
         try:
             r = requests.post(self.url, auth=self.auth, data=request,
                               headers={'Content-Type':'text/xml; charset=utf-8',
                                        "Accept": "text/xml"},
                               verify="/opt/odoo/authentication/java.pem")
+            #pdb.set_trace()
         except requests.exceptions.ConnectionError as e:
             raise SoapConnectionError(e)
 
         if debug:
-            logging.debug('%s', pretty_xml(r.text))
+            logging.debug('%s', pretty_xml(r.text.encode('utf-8')))
 
         return SoapClient.parse_xml(r.text.encode('utf-8'))
 
