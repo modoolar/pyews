@@ -8,7 +8,13 @@
    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
    xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages" 
    xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
-
+    <soap:Header>
+      <t:ExchangeImpersonation>
+        <t:ConnectingSID>
+          <t:PrincipalName>oerp@linkingup.org</t:PrincipalName>
+        </t:ConnectingSID>
+      </t:ExchangeImpersonation>
+    </soap:Header>
   <soap:Body>
     {% block body %}
     {% end %}
