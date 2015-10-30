@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##
 ## Created : Fri Mar 28 23:02:29 IST 2014
 ##

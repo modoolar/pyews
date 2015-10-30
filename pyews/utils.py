@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import md5, os, re, urllib2, xml.dom.minidom
 
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))

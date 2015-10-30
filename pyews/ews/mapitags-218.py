@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 MV_FLAG         = 4096          # Multi-value flag 
 
 PT_UNSPECIFIED  = 0
