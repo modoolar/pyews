@@ -11,7 +11,7 @@
     <soap:Header>
       <t:ExchangeImpersonation>
         <t:ConnectingSID>
-          <t:PrincipalName>oerp@linkingup.org</t:PrincipalName>
+          <t:PrimarySmtpAddress>{{ primary_smtp_address }}</t:PrimarySmtpAddress>
         </t:ConnectingSID>
       </t:ExchangeImpersonation>
     </soap:Header>

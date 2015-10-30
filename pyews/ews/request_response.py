@@ -179,6 +179,7 @@ class GetFolderRequest(Request):
     def __init__ (self, ews, **kwargs):
         Request.__init__(self, ews, template=utils.REQ_BIND_FOLDER)
         self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address':ews.primary_smtp_address})
 
     ##
     ## Implement the abstract methods
@@ -215,6 +216,7 @@ class CreateItemsRequest(Request):
     def __init__ (self, ews, **kwargs):
         Request.__init__(self, ews, template=utils.REQ_CREATE_ITEM)
         self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address':ews.primary_smtp_address})
 
     ##
     ## Implement the abstract methods
@@ -259,6 +261,7 @@ class DeleteItemsRequest(Request):
     def __init__ (self, ews, **kwargs):
         Request.__init__(self, ews, template=utils.REQ_DELETE_ITEM)
         self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address':ews.primary_smtp_address})
 
     ##
     ## Implement the abstract methods
@@ -292,6 +295,7 @@ class FindFoldersRequest(Request):
     def __init__ (self, ews, **kwargs):
         Request.__init__(self, ews, template=utils.REQ_FIND_FOLDER_ID)
         self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address':ews.primary_smtp_address})
 
     ##
     ## Implement the abstract methods
@@ -333,6 +337,7 @@ class FindItemsRequest(Request):
     def __init__ (self, ews, **kwargs):
         Request.__init__(self, ews, template=utils.REQ_FIND_ITEM)
         self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address':ews.primary_smtp_address})
 
     ##
     ## Implement the abstract methods
@@ -372,6 +377,7 @@ class FindItemsLMTRequest(Request):
     def __init__ (self, ews, **kwargs):
         Request.__init__(self, ews, template=utils.REQ_FIND_ITEM_LMT)
         self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address':ews.primary_smtp_address})
 
     ##
     ## Implement the abstract methods
@@ -412,6 +418,7 @@ class GetItemsRequest(Request):
     def __init__ (self, ews, **kwargs):
         Request.__init__(self, ews, template=utils.REQ_GET_ITEM)
         self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address':ews.primary_smtp_address})
 
     ##
     ## Implement the abstract methods
@@ -456,6 +463,7 @@ class UpdateItemsRequest(Request):
     def __init__ (self, ews, **kwargs):
         Request.__init__(self, ews, template=utils.REQ_UPDATE_ITEM)
         self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address':ews.primary_smtp_address})
 
         self.items_map = {}
         for item in self.kwargs['items']:
@@ -512,6 +520,7 @@ class SyncFolderItemsRequest(Request):
     def __init__ (self, ews, **kwargs):
         Request.__init__(self, ews, template=utils.REQ_SYNC_FOLDER)
         self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address':ews.primary_smtp_address})
 
         self.items_map = {}
 

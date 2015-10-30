@@ -94,7 +94,7 @@ class ExchangeService(object):
         logging.info('Sending folder create request to EWS...')
         req = self._render_template(utils.REQ_CREATE_FOLDER,
                                     parent_folder_id=parent_id,
-                                    folders=info)
+                                    folders=info,primary_smtp_address=self.primary_smtp_address)
         try:
             resp, node = self.send(req)
         except SoapMessageError as e:
