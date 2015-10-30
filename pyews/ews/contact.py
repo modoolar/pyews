@@ -351,6 +351,31 @@ class PhoneNumbers(CField):
         s += '; '.join([str(x) for x in self.entries])
         return s
 
+class Categories(CField):
+    class Category(CField):
+        def __init__ (self, text=None):
+            CField.__init__(self, 'String', text)
+
+    def __init__ (self, node=None):
+        CField.__init__(self, 'Categories')
+        self.children = self.entries = []
+        if node is not None:
+            self.populate_from_node(node)
+
+    def populate_from_node (self, node):
+        for child in node:
+            cat = self.Category()
+            cat.value = child.text
+            self.entries.append(cat)
+
+    def add (self, catname):
+        cat = self.Category()
+        cat.value = catname
+        self.entries.append(cat)
+
+    def has_updates (self):
+        return len(self.entries) > 0
+
 class BusinessHomePage(CField):
     def __init__ (self, text=None):
         CField.__init__(self, 'BusinessHomePage', text)
@@ -433,6 +458,7 @@ class Contact(Item):
 
         self.gender = Gender()
         self.personal_home_page = PersonalHomePage()
+        self.categories = Categories()
 
         self._init_from_resp()
 
