@@ -19,6 +19,8 @@
 ## not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import pdb
+
 from item    import Item, Field, FieldURI, ExtendedProperty, LastModifiedTime
 from pyews.soap    import SoapClient, unQName, QName_T
 from pyews.utils   import pretty_xml
@@ -26,6 +28,7 @@ from pyews.ews     import mapitags
 from pyews.ews.data import MapiPropertyTypeType, MapiPropertyTypeTypeInv
 from pyews.ews.data import GenderType
 from xml.sax.saxutils import escape
+_logger = logging.getLogger(__name__)
 
 class CField(Field):
     def __init__ (self, tag=None, text=None):
@@ -33,6 +36,7 @@ class CField(Field):
         self.furi = ('contacts:%s' % tag) if tag else None
 
     def write_to_xml_update (self):
+        _logger.debug("PROCESSED TAG %s : %s" % (self.tag,self.value))
         ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
         s = '<t:FieldURI FieldURI="%s"/>' % self.furi
         s += '\n<t:Contact>'

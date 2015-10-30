@@ -26,7 +26,7 @@ from   pyews.ews.request_response import FindFoldersRequest, FindFoldersResponse
 import xml.etree.ElementTree as ET
 
 import logging
-
+import pdb
 class NotImplementedError:
     pass
 
@@ -113,7 +113,7 @@ class Folder:
         #     self.ChangeKey = fid_elem.attrib['ChangeKey']
 
         # assert self.Id
-
+        #pdb.set_trace()
         idelem = root.find(QName_T('FolderId'))
         self.Id = idelem.attrib['Id']
         self.ChangeKey = idelem.attrib['ChangeKey']

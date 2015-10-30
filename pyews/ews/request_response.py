@@ -17,7 +17,7 @@
 ##
 ## You should have a copy of the license in the doc/ directory of pyews.  If
 ## not, see <http://www.gnu.org/licenses/>.
-
+import pdb
 import logging
 import xml.etree.ElementTree as ET
 import pyews.utils as utils
@@ -54,6 +54,7 @@ class Request(object):
     ##
 
     def request_server (self, debug=True):
+        #pdb.set_trace()
         r = self.ews.loader.load(self.template).generate(**self.kwargs)
         r = utils.pretty_xml(r)
 
@@ -117,6 +118,7 @@ class Response(object):
         assert self.node is not None
 
         i = 0
+        #pdb.set_trace()
         for gfrm in self.node.iter(tag):
             resp_class = gfrm.attrib['ResponseClass']
             if resp_class == 'Error':

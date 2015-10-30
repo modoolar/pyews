@@ -28,7 +28,7 @@ from    pyews.ews.data  import MapiPropertyTypeType, MapiPropertyTypeTypeInv
 import  xml.etree.ElementTree as ET
 from    xml.sax.saxutils import escape
 import  logging
-
+import pdb
 gnd = SoapClient.get_node_detail
 
 class ReadOnly:
