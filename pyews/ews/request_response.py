@@ -253,6 +253,18 @@ class CreateItemsResponse(Response):
         item.itemid.set(itemid)
         item.change_key.set(ck)
 
+    def _get_items(self):
+        "Returns items provided to in the request to create remote records"
+        
+        items = self.req.kwargs['items'] or []
+        return items
+    
+    def get_itemids(self):
+        return {item.itemid.value:item.change_key.value for item in self._get_items()}
+
+        
+        
+    
 ##
 ## DeleteItems
 ##
