@@ -32,6 +32,7 @@ from   ews.folder       import Folder
 from   ews.contact      import Contact
 
 from ews.request_response import GetItemsRequest, GetItemsResponse
+from ews.request_response import GetContactsRequest, GetContactsResponse
 from ews.request_response import FindItemsRequest, FindItemsResponse
 from ews.request_response import CreateItemsRequest, CreateItemsResponse
 from ews.request_response import DeleteItemsRequest, DeleteItemsResponse
@@ -205,6 +206,23 @@ class ExchangeService(object):
                      folder.DisplayName)
 
         return ret
+
+    def GetContacts (self, contact_ids, eprops_xml=[]):
+        """
+        contact_ids is an array of exchange contact ids, and we will fetch that
+        stuff and return an array of Item objects.
+
+        @FIXME: Need to make this work in batches to ensure data is not too
+        much.
+        """
+
+        logging.info('pimdb_ex:GetItems() - fetching items....')
+        req = GetContactsRequest(self, contact_ids=contact_ids,
+                              custom_eprops_xml=eprops_xml)
+        resp = req.execute()
+        logging.info('pimdb_ex:GetItems() - fetching items...done')
+
+        return resp.items
 
     def GetItems (self, itemids, eprops_xml=[]):
         """

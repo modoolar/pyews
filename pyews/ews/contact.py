@@ -432,7 +432,8 @@ class Contact(Item):
     object of this type is instantiated from a response.
     """
 
-    def __init__ (self, service, parent_fid=None, resp_node=None):
+    def __init__ (self, service, parent_fid=None, 
+                  resp_node=None, mapped_data=None):
         Item.__init__(self, service, parent_fid, resp_node, tag='Contact')
 
         self.file_as      = FileAs()
@@ -460,7 +461,58 @@ class Contact(Item):
         self.personal_home_page = PersonalHomePage()
         self.categories = Categories()
 
-        self._init_from_resp()
+        if mapped_data is not None:
+            self._init_from_mapped_data(mapped_data)
+        elif resp_node is not None: 
+            self._init_from_resp()
+
+    def _init_from_mapped_data(self, data):
+        "Create a Contact record from the mapped data"
+        if not data:
+            return
+
+        # @TODO factorize with init_from_resp maybe ?
+        if 'exchange_id' not in data:
+            self.categories.add('odoo')
+        for key in data.keys():
+            if key == 'exchange_id':
+                self.itemid.set(data.get('exchange_id',''))
+            if key == 'change_key':
+                self.change_key.set(data.get('change_key'))
+            if key == 'FileAs':
+                self.file_as.set(data.get('FileAs'))
+            if key == 'Alias':
+                self.file_as.set(data.get('FileAs'))
+            if key == 'Name':
+                self.display_name.set(data.get('Alias'))
+            if key == 'title':
+                self.complete_name.title.set(data.get('title'))
+            if key == 'DisplayName':
+                self.complete_name.first_name.set(data.get('DisplayName'))
+            if key == 'FirstName':
+                self.complete_name.first_name.set(data.get('FirstName'))
+                self.complete_name.given_name.set(data.get('FirstName'))
+            if key == 'LastName':
+                self.complete_name.surname.set(data.get('LastName'))
+                self.complete_name.last_name.set(data.get('LastName'))
+            if key == 'JobTitle':
+                self.job_title.set(data.get('JobTitle'))
+            if key == 'CompanyName':
+                self.company_name.set(data.get('CompanyName'))
+            if key == 'Phone':
+                self.phones.add('BusinessPhone',data.get('Phone'))
+            if key == 'Fax':
+                self.phones.add('BusinessFax',data.get('Fax'))
+            if key == 'Mobile':
+                self.phones.add('MobilePhone',data.get('Mobile'))
+            if key == 'Email':
+                self.emails.add('EmailAddress1',data.get('Email'))
+            if key == 'BusinessHomePage':
+                self.business_home_page.text = data.get('BusinessHomePage')
+
+            self._firstname = self.complete_name.first_name.value or ''
+            self._lastname = self.complete_name.last_name.value or ''
+            self._displayname = self.display_name.value or ''
 
     def _init_from_resp (self):
         if self.resp_node is None:
@@ -596,10 +648,10 @@ class Contact(Item):
         ## Note that children is used for generating xml representation of
         ## this contact for CreateItem and update operations. The order of
         ## these fields is critical. I know, it's crazy.
-        self.children = [self.notes] + self.eprops + [self.gender,
+        self.children = [self.notes] + self.eprops + [self.categories, self.gender,
                          self.personal_home_page, self.file_as,
                          self.display_name, cn.given_name, cn.initials,
-                         cn.middle_name, cn.nickname, self.company_name,
+                         cn.middle_name, cn.nickname,self.company_name,
                          self.emails, self.phones, self.assistant_name,
                          self.birthday, self.business_home_page,
                          self.department, self.ims, self.job_title,
