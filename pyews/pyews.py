@@ -247,9 +247,10 @@ class ExchangeService(object):
         logging.info('pimdb_ex:CreateItems() - creating items....')
         req = CreateItemsRequest(self, folder_id=folder_id, items=items)
         resp = req.execute()
-
+         
         logging.info('pimdb_ex:CreateItems() - creating items....done')
-
+        return resp
+        
     def DeleteItems (self, itemids):
         """Delete items in the exchange store."""
 

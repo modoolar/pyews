@@ -194,7 +194,7 @@ class ExtendedProperty(Field):
 
         def init_from_xml (self, node):
             """
-            None is a parsed xml node (Element). Extract the data that we can
+            Node is a parsed xml node (Element). Extract the data that we can
             from the node.
             """
 
@@ -667,10 +667,9 @@ class Item(Field):
 
         for child in rnode:
             tag = unQName(child.tag)
-
             if tag == 'ItemId':
-                self.itemid.value = child.attrib['Id']
-                self.change_key.value = child.attrib['ChangeKey']
+                self.itemid.set(child.attrib['Id'])
+                self.change_key.set(child.attrib['ChangeKey'])
             elif tag == 'ParentFolderId':
                 self.parent_fid = ParentFolderId(child.attrib['Id'])
                 self.parent_fck = ParentFolderChangeKey(child.attrib['ChangeKey'])
