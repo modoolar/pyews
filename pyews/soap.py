@@ -77,13 +77,11 @@ class SoapClient(object):
 
         The response text is the raw xml including the soap headers and stuff.
         """
-        
         try:
-            r = requests.post(self.url, auth=self.auth, data=request,
+            r = requests.post(self.url, auth=self.auth, data=request.encode('utf-8'),
                               headers={'Content-Type':'text/xml; charset=utf-8',
                                        "Accept": "text/xml"},
-                              verify="/opt/odoo/authentication/java.pem")
-            #pdb.set_trace()
+                              verify=self.cert)
         except requests.exceptions.ConnectionError as e:
             raise SoapConnectionError(e)
 
