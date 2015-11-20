@@ -475,39 +475,54 @@ class Contact(Item):
         if 'exchange_id' not in data:
             self.categories.add('odoo')
         for key in data.keys():
-            if key == 'exchange_id':
+            if key == 'exchange_id' and data.get('exchange_id'):
                 self.itemid.set(data.get('exchange_id',''))
-            if key == 'change_key':
+
+            if key == 'change_key' and data.get('change_key'):
                 self.change_key.set(data.get('change_key'))
-            if key == 'FileAs':
+
+            if key == 'FileAs' and data.get('FileAs'):
                 self.file_as.set(data.get('FileAs'))
-            if key == 'Alias':
-                self.file_as.set(data.get('FileAs'))
-            if key == 'Name':
-                self.display_name.set(data.get('Alias'))
-            if key == 'title':
+
+            if key == 'Alias' and data.get('Alias'):
+                self.file_as.set(data.get('Alias'))
+
+            if key == 'Name' and data.get('Name'):
+                self.display_name.set(data.get('Name'))
+
+            if key == 'title' and data.get('title'):
                 self.complete_name.title.set(data.get('title'))
-            if key == 'DisplayName':
+
+            if key == 'DisplayName' and data.get('DisplayName'):
                 self.complete_name.first_name.set(data.get('DisplayName'))
-            if key == 'FirstName':
+
+            if key == 'FirstName' and data.get('FirstName'):
                 self.complete_name.first_name.set(data.get('FirstName'))
                 self.complete_name.given_name.set(data.get('FirstName'))
-            if key == 'LastName':
+
+            if key == 'LastName' and data.get('LastName'):
                 self.complete_name.surname.set(data.get('LastName'))
                 self.complete_name.last_name.set(data.get('LastName'))
-            if key == 'JobTitle':
+
+            if key == 'JobTitle' and data.get('JobTitle'):
                 self.job_title.set(data.get('JobTitle'))
-            if key == 'CompanyName':
+
+            if key == 'CompanyName' and data.get('CompanyName'):
                 self.company_name.set(data.get('CompanyName'))
-            if key == 'Phone':
+
+            if key == 'Phone' and data.get('Phone'):
                 self.phones.add('BusinessPhone',data.get('Phone'))
-            if key == 'Fax':
+
+            if key == 'Fax' and data.get('Fax'):
                 self.phones.add('BusinessFax',data.get('Fax'))
-            if key == 'Mobile':
+
+            if key == 'Mobile' and data.get('Mobile'):
                 self.phones.add('MobilePhone',data.get('Mobile'))
-            if key == 'Email':
+
+            if key == 'Email' and data.get('Email'):
                 self.emails.add('EmailAddress1',data.get('Email'))
-            if key == 'BusinessHomePage':
+
+            if key == 'BusinessHomePage' and data.get('BusinessHomePage'):
                 self.business_home_page.text = data.get('BusinessHomePage')
 
             self._firstname = self.complete_name.first_name.value or ''
