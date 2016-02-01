@@ -1,35 +1,36 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python
 ##
-## Created : Wed Mar 05 11:28:41 IST 2014
+# Created : Wed Mar 05 11:28:41 IST 2014
 ##
-## Copyright (C) 2014 Sriram Karra <karra.etc@gmail.com>
+# Copyright (C) 2014 Sriram Karra <karra.etc@gmail.com>
 ##
-## This file is part of pyews
+# This file is part of pyews
 ##
-## pyews is free software: you can redistribute it and/or modify it under
-## the terms of the GNU Affero General Public License as published by the
-## Free Software Foundation, version 3 of the License
+# pyews is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the
+# Free Software Foundation, version 3 of the License
 ##
-## pyews is distributed in the hope that it will be useful, but WITHOUT
-## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public
-## License for more details.
+# pyews is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public
+# License for more details.
 ##
-## You should have a copy of the license in the doc/ directory of pyews.  If
-## not, see <http://www.gnu.org/licenses/>.
+# You should have a copy of the license in the doc/ directory of pyews.  If
+# not, see <http://www.gnu.org/licenses/>.
 
-import logging, re
+import logging
+import re
 import pdb
 import utils
-from   utils            import pretty_xml
-from   ews.autodiscover import EWSAutoDiscover, ExchangeAutoDiscoverError
-from   ews.data         import DistinguishedFolderId, WellKnownFolderName
-from   ews.data         import FolderClass
-from   ews.errors       import EWSMessageError, EWSCreateFolderError
-from   ews.errors       import EWSDeleteFolderError
-from   ews.folder       import Folder
-from   ews.contact      import Contact
+from utils import pretty_xml
+from ews.autodiscover import EWSAutoDiscover, ExchangeAutoDiscoverError
+from ews.data import DistinguishedFolderId, WellKnownFolderName
+from ews.data import FolderClass
+from ews.errors import EWSMessageError, EWSCreateFolderError
+from ews.errors import EWSDeleteFolderError
+from ews.folder import Folder
+from ews.contact import Contact
 
 from ews.request_response import GetItemsRequest, GetItemsResponse
 from ews.request_response import GetContactsRequest, GetContactsResponse
@@ -38,31 +39,37 @@ from ews.request_response import CreateItemsRequest, CreateItemsResponse
 from ews.request_response import DeleteItemsRequest, DeleteItemsResponse
 from ews.request_response import FindItemsLMTRequest, FindItemsLMTResponse
 from ews.request_response import UpdateItemsRequest, UpdateItemsResponse
-from ews.request_response import SyncFolderItemsRequest, SyncFolderItemsResponse
+from ews.request_response import (SyncFolderItemsRequest,
+                                  SyncFolderItemsResponse)
 
-from   tornado import template
-from   soap import SoapClient, SoapMessageError, QName_T
+from tornado import template
+from soap import SoapClient, SoapMessageError, QName_T
 
 USER = u''
-PWD  = u''
+PWD = u''
 EWS_URL = u''
 
 ##
-## Note: There is a feeeble attemp to mimick the names of classes and methods
-## used in the EWS Managed Services API. However the similiarities are merely
-## skin-deep, if anything at all.
+# Note: There is a feeeble attemp to mimick the names of classes and methods
+# used in the EWS Managed Services API. However the similiarities are merely
+# skin-deep, if anything at all.
 ##
+
 
 class InvalidUserEmail(Exception):
     pass
 
+
 class WebCredentials(object):
-    def __init__ (self, user, pwd, cert=False):
+
+    def __init__(self, user, pwd, cert=False):
         self.user = user
-        self.pwd  = pwd
-        self.cert  = cert
+        self.pwd = pwd
+        self.cert = cert
+
 
 class ExchangeService(object):
+
     def __init__(self):
         self.ews_ad = None
         self.credentials = None
@@ -70,32 +77,34 @@ class ExchangeService(object):
         self.loader = template.Loader(utils.REQUESTS_DIR)
 
     ##
-    ## First the methods that are similar to the EWS Managed API. The names might
-    ## be similar but please note that there is no effort made to really be a
-    ## complete copy of the Managed API.
+    # First the methods that are similar to the EWS Managed API.
+    # The names might be similar but please note that there is no effort made
+    # to really be a complete copy of the Managed API.
     ##
-    ## FIXME: Each of these results in a EWS Request. We should just have a
-    ## base Request class along with specific request types derived from the
-    ## based request that does the needful. Hm. there is no end to this
-    ## 'properisation'.
+    # FIXME: Each of these results in a EWS Request. We should just have a
+    # base Request class along with specific request types derived from the
+    # based request that does the needful. Hm. there is no end to this
+    # 'properisation'.
     ##
 
-    def AutoDiscoverUrl (self):
+    def AutoDiscoverUrl(self):
         """blame the weird naming on the EWS MS APi."""
 
         creds = self.credentials
         self.ews_ad = EWSAutoDiscover(creds.user, creds.pwd)
         self.Url = self.ews_ad.discover()
 
-    def CreateFolder (self, parent_id, info):
+    def CreateFolder(self, parent_id, info):
         """info should be an array of (name, class) tuples. class should be one
         of values in the ews.data.FolderClass enumeration.
         """
 
         logging.info('Sending folder create request to EWS...')
-        req = self._render_template(utils.REQ_CREATE_FOLDER,
-                                    parent_folder_id=parent_id,
-                                    folders=info,primary_smtp_address=self.primary_smtp_address)
+        req = self._render_template(
+            utils.REQ_CREATE_FOLDER,
+            parent_folder_id=parent_id,
+            folders=info,
+            primary_smtp_address=self.primary_smtp_address)
         try:
             resp, node = self.send(req)
         except SoapMessageError as e:
@@ -104,13 +113,13 @@ class ExchangeService(object):
         logging.info('Sending folder create request to EWS...done')
         return Folder(self, resp)
 
-    def DeleteFolder (self, folder_ids, hard_delete=False):
+    def DeleteFolder(self, folder_ids, hard_delete=False):
         """Delete all specified folder ids. If hard_delete is True then the
         folders are completely nuked otherwise they are pushed to the Dumpster
         if that is enabed server side.
         """
         logging.info('pimdb_ex:DeleteFolder() - deleting folder_ids: %s',
-                    folder_ids)
+                     folder_ids)
 
         dt = 'HardDelete'if hard_delete else 'SoftDelete'
         req = self._render_template(utils.REQ_DELETE_FOLDER,
@@ -123,7 +132,7 @@ class ExchangeService(object):
 
         return resp
 
-    def FindItems (self, folder, eprops_xml=[], ids_only=False):
+    def FindItems(self, folder, eprops_xml=[], ids_only=False):
         """
         Fetch all the items in the given folder.  folder is an object of type
         ews.folder.Folder. This method will first find all the ItemIds of
@@ -153,21 +162,22 @@ class ExchangeService(object):
                 break
 
             i += self.batch_size()
-            ## just a safety net to avoid inifinite loops
+            # just a safety net to avoid inifinite loops
             if i >= folder.TotalCount:
                 logging.warning('pimdb_ex.FindItems(): Breaking strange loop')
                 break
 
-        logging.info('pimdb_ex:FindItems() - fetching items in folder %s...done',
-                     folder.DisplayName)
+        logging.info(
+            'pimdb_ex:FindItems() - fetching items in folder %s...done',
+            folder.DisplayName)
 
-        if len(ret) > 0 and ids_only == False:
+        if len(ret) > 0 and not ids_only:
             return self.GetItems([x.itemid for x in ret],
                                  eprops_xml=eprops_xml)
         else:
             return ret
 
-    def FindItemsLMT (self, folder, lmt):
+    def FindItemsLMT(self, folder, lmt):
         """
         Fetch all the items in the given folder that were last modified at or
         after the provided timestamp (lmt). We return an array of Item objects
@@ -180,8 +190,9 @@ class ExchangeService(object):
 
         """
 
-        logging.info('pimdb_ex:FindItemsLMT() - fetching items in folder %s...',
-                     folder.DisplayName)
+        logging.info(
+            'pimdb_ex:FindItemsLMT() - fetching items in folder %s...',
+            folder.DisplayName)
 
         i = 0
         ret = []
@@ -197,17 +208,19 @@ class ExchangeService(object):
                 break
 
             i += self.batch_size()
-            ## just a safety net to avoid inifinite loops
+            # just a safety net to avoid inifinite loops
             if i >= folder.TotalCount:
-                logging.warning('pimdb_ex.FindItemsLMT(): Breaking strange loop')
+                logging.warning(
+                    'pimdb_ex.FindItemsLMT(): Breaking strange loop')
                 break
 
-        logging.info('pimdb_ex:FindItemsLMT() - fetching items in folder %s...done',
-                     folder.DisplayName)
+        logging.info(
+            'pimdb_ex:FindItemsLMT() - fetching items in folder %s...done',
+            folder.DisplayName)
 
         return ret
 
-    def GetContacts (self, contact_ids, eprops_xml=[]):
+    def GetContacts(self, contact_ids, eprops_xml=[]):
         """
         contact_ids is an array of exchange contact ids, and we will fetch that
         stuff and return an array of Item objects.
@@ -218,13 +231,13 @@ class ExchangeService(object):
 
         logging.info('pimdb_ex:GetItems() - fetching items....')
         req = GetContactsRequest(self, contact_ids=contact_ids,
-                              custom_eprops_xml=eprops_xml)
+                                 custom_eprops_xml=eprops_xml)
         resp = req.execute()
         logging.info('pimdb_ex:GetItems() - fetching items...done')
 
         return resp.items
 
-    def GetItems (self, itemids, eprops_xml=[]):
+    def GetItems(self, itemids, eprops_xml=[]):
         """
         itemids is an array of itemids, and we will fetch that stuff and
         return an array of Item objects.
@@ -241,17 +254,17 @@ class ExchangeService(object):
 
         return resp.items
 
-    def CreateItems (self, folder_id, items):
+    def CreateItems(self, folder_id, items):
         """Create items in the exchange store."""
 
         logging.info('pimdb_ex:CreateItems() - creating items....')
         req = CreateItemsRequest(self, folder_id=folder_id, items=items)
         resp = req.execute()
-         
+
         logging.info('pimdb_ex:CreateItems() - creating items....done')
         return resp
-        
-    def DeleteItems (self, itemids):
+
+    def DeleteItems(self, itemids):
         """Delete items in the exchange store."""
 
         logging.info('pimdb_ex:DeleteItems() - deleting items....')
@@ -260,9 +273,10 @@ class ExchangeService(object):
 
         return req.execute()
 
-    def UpdateItems (self, items):
+    def UpdateItems(self, items):
         """
-        Fetch updates from the specified folder_id.  items in the exchange store.
+        Fetch updates from the specified folder_id.
+        Items in the exchange store.
         """
 
         logging.info('pimdb_ex:UpdateItems() - updating items....')
@@ -273,9 +287,9 @@ class ExchangeService(object):
         logging.info('pimdb_ex:UpdateItems() - updating items....done')
         return resp.items
 
-    def SyncFolderItems (self, folder_id, sync_state):
+    def SyncFolderItems(self, folder_id, sync_state):
         """
-        Fetch updates from the specified folder_id. 
+        Fetch updates from the specified folder_id.
         """
 
         logging.info('pimdb_ex:SyncFolder() - fetching state...')
@@ -290,73 +304,73 @@ class ExchangeService(object):
         return resp
 
     ##
-    ## Some internal messages
+    # Some internal messages
     ##
 
     ##
-    ## Other external methods
+    # Other external methods
     ##
 
-    def init_soap_client (self):
-        self.soap = SoapClient(self.Url, 
+    def init_soap_client(self):
+        self.soap = SoapClient(self.Url,
                                user=self.credentials.user,
                                pwd=self.credentials.pwd,
                                cert=self.credentials.cert)
 
-    def send (self, req, debug=True):
+    def send(self, req, debug=True):
         """
         Will raise a SoapConnectionError if there is a connection problem.
         """
 
         return self.soap.send(req, debug)
 
-    def get_distinguished_folder (self, name):
+    def get_distinguished_folder(self, name):
         elem = u'<t:DistinguishedFolderId Id="%s"/>' % name
-        req  = self._render_template(utils.REQ_GET_FOLDER,
-                                     folder_ids=elem)
+        req = self._render_template(utils.REQ_GET_FOLDER,
+                                    folder_ids=elem)
         return self.soap.send(req)
 
-    def get_root_folder (self):
+    def get_root_folder(self):
         if not self.root_folder:
             self.root_folder = Folder.bind(self,
                                            WellKnownFolderName.MsgFolderRoot)
         return self.root_folder
 
-    def batch_size (self):
+    def batch_size(self):
         return 100
 
     ##
-    ## Internal routines
+    # Internal routines
     ##
 
-    def _wsdl_url (self, url=None):
+    def _wsdl_url(self, url=None):
         if not url:
             url = self.Url
 
         res = re.match('(.*)Exchange.asmx$', url)
         return res.group(1) + 'Services.wsdl'
 
-    ## FIXME: To be removed once all the requests become classes
-    def _render_template (self, name, **kwargs):
+    # FIXME: To be removed once all the requests become classes
+    def _render_template(self, name, **kwargs):
         return self.loader.load(name).generate(**kwargs)
 
     ##
-    ## Property getter/setter stuff
+    # Property getter/setter stuff
     ##
 
     @property
-    def credentials (self):
+    def credentials(self):
         return self._credentials
 
     @credentials.setter
-    def credentials (self, c):
+    def credentials(self, c):
         self._credentials = c
 
     @property
-    def Url (self):
+    def Url(self):
         return self._Url
 
     @Url.setter
-    def Url (self, url):
+    def Url(self, url):
         self._Url = url
         self.wsdl_url = self._wsdl_url()
