@@ -598,7 +598,6 @@ class Contact(Item):
 
         self.gender = Gender()
         self.personal_home_page = PersonalHomePage()
-        self.categories = Categories()
 
         if mapped_data is not None:
             self._init_from_mapped_data(mapped_data)
@@ -803,15 +802,17 @@ class Contact(Item):
         # this contact for CreateItem and update operations. The order of
         # these fields is critical. I know, it's crazy.
         self.children = [self.notes] + self.eprops + [
-            self.categories, self.gender,
-            self.personal_home_page, self.file_as,
-            self.display_name, self.company_name,
-            self.emails, self.physical_addresses, self.phones,
-            self.assistant_name,
-            self.birthday, self.business_home_page,
-            self.department, self.ims, self.job_title,
-            self.emails, self.physical_addresses, self.phones,
-            self.assistant_name, self.anniversary, self.alias]
+             self.gender,
+             self.personal_home_page, self.file_as,
+             self.display_name, cn.given_name, cn.initials,
+             cn.middle_name, cn.nickname, self.company_name,
+             self.emails, self.physical_addresses, self.phones,
+             self.assistant_name,
+             self.birthday, self.business_home_page,
+             self.department, self.ims, self.job_title,
+             self.manager, self.postal_address_index, self.spouse_name,
+             cn.surname,
+             self.anniversary, self.alias]
 
         return self.children
 

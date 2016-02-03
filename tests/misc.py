@@ -11,9 +11,6 @@ from pyews import utils
 from pyews.ews.folder import Folder
 from pyews.ews.contact import *
 
-sys.path.append("../")
-sys.path.append("../pyews")
-
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
@@ -30,6 +27,7 @@ def main():
     creds = WebCredentials(USER, PWD)
     ews = ExchangeService()
     ews.credentials = creds
+    ews.primary_smtp_address = "personal_name"
 
     try:
         ews.AutoDiscoverUrl()
@@ -151,7 +149,7 @@ def test_create_item(ews, fid):
     con.physical_addresses.add(add3)
 
     # Main address used in Exchange one in ("Business", "Home", "Other")
-    con.postal_address_index.value = PhysicalAddressType.Other
+    con.postal_address_index.value = PhysicalAddressType.Home
 
     # con.save()
     ews.CreateItems(fid, [con])

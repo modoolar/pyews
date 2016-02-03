@@ -75,6 +75,10 @@ class ExchangeService(object):
         self.credentials = None
         self.root_folder = None
         self.loader = template.Loader(utils.REQUESTS_DIR)
+        # impersonation mechanisms
+        self.primary_smtp_address = None
+        self.security_identifier_descriptor = None
+        self.principal_name = None
 
     ##
     # First the methods that are similar to the EWS Managed API.
