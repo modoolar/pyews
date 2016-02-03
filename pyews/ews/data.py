@@ -104,10 +104,28 @@ class PhoneKey:
     TtyTddPhone = 'TtyTddPhone'
 
 
+class EmailKey:
+    Email1 = 'EmailAddress1'
+    Email2 = 'EmailAddress2'
+    Email3 = 'EmailAddress3'
+
+
 class GenderType:
     Unspecified = 0x0001
     Female = 0x0002
     Male = 0x0003
+
+
+class PhysicalAddressType:
+    Business = "Business"
+    Home = "Home"
+    Other = "Other"
+
+
+class ImAddressType:
+    Address1 = 'ImAddress1'
+    Address2 = 'ImAddress2'
+
 
 MapiPropertyTypeType = {
     mapitags.PT_UNSPECIFIED: "Unspecified",

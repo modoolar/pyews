@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import md5
 import os
-import re
 import urllib2
 import xml.dom.minidom
 
@@ -32,9 +31,7 @@ REQ_SYNC_FOLDER = template_fn("sync_folder.xml")
 
 def pretty_xml(x):
     x = xml.dom.minidom.parseString(x).toprettyxml()
-    lines = x.splitlines()
-    lines = [s for s in lines if not re.match(s.strip(), '^\s*$')]
-    return os.linesep.join(lines)
+    return x
 
 
 def pretty_eid(x):

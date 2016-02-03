@@ -5,10 +5,11 @@ import sys
 from pyews.pyews import WebCredentials, ExchangeService
 from pyews.ews.autodiscover import EWSAutoDiscover, ExchangeAutoDiscoverError
 from pyews.ews.data import DistinguishedFolderId, WellKnownFolderName
-from pyews.ews.data import FolderClass, GenderType
+from pyews.ews.data import (FolderClass, GenderType, EmailKey, PhoneKey,
+                            PhysicalAddressType, ImAddressType)
 from pyews import utils
 from pyews.ews.folder import Folder
-from pyews.ews.contact import Contact
+from pyews.ews.contact import *
 
 sys.path.append("../")
 sys.path.append("../pyews")
@@ -40,14 +41,14 @@ def main():
     ews.init_soap_client()
 
     root = bind()
-    # cfs = root.FindFolders(types=FolderClass.Contacts)
+    cfs = root.FindFolders(types=FolderClass.Contacts)
 
     # test_create_folder(root)
     # test_find_item(cons[0].itemid.text)
 
-    # test_create_item(ews, cfs[0].Id)
+    test_create_item(ews, cfs[0].Id)
 
-    cons = test_list_items(root, ids_only=True)
+    # cons = test_list_items(root, ids_only=True)
 
     # iid = 'AAAcAHNrYXJyYUBhc3luay5vbm1pY3Jvc29mdC5jb20ARgAAAAAA6tvK38NMgEiPr'
     #       'dzycecYvAcACf/6iQHYvUyNzrlQXzUQNgAAAAABDwAACf/6iQHYvUyNzrlQXzUQNg'
@@ -79,6 +80,7 @@ def test_list_items(root, ids_only):
     for con in contacts:
         n = con.display_name.value
         print 'Name: %-10s; itemid: %s' % (n, con.itemid)
+        print ews.GetItems([con.itemid])
 
     return contacts
 
@@ -95,13 +97,63 @@ def test_find_item(itemid):
 
 def test_create_item(ews, fid):
     con = Contact(ews, fid)
-    con.complete_name.first_name.text = 'Mamata'
-    con.complete_name.given_name.text = con.complete_name.first_name.text
-    con.complete_name.surname.text = 'Banerjee'
-    con.complete_name.suffix = 'Jr.'
-    con.job_title.text = 'Chief Minister'
-    con.company_name.text = 'Govt. of West Bengal'
-    con.gender.set(GenderType.Female)
+
+    name = "Some Guy"
+    function = "Developer"
+    phone = "+33 1 23456789"
+    mobile = "+33 6 78901234"
+    fax = "+33 5 67891234"
+    website = "http://www.someguy-website.com"
+    email = "someguy@someguy-website.com"
+    first_name = "Some"
+    last_name = "Guy"
+    company_name = "Company."
+    file_as = '%s, %s (%s)' % (first_name, last_name.upper(), company_name)
+    title_name = "M."
+
+    con.file_as.value = file_as
+    con.job_title.value = function
+    con.complete_name.given_name.value = first_name
+    con.complete_name.surname.value = last_name
+    con.complete_name.title.value = title_name
+    con.complete_name.middle_name.value = "smg"
+    con.company_name.value = company_name
+    con.emails.add(EmailKey.Email3, email)
+    con.business_home_page.value = website
+    con.phones.add(PhoneKey.MobilePhone, mobile)
+    con.phones.add(PhoneKey.PrimaryPhone, phone)
+    con.ims.add(ImAddressType.Address1, "toto@toto.com")
+    con.ims.add(ImAddressType.Address2, "titi@titi.com")
+
+    add1 = PostalAddress()
+    add1.add_attrib('Key', PhysicalAddressType.Business)
+    add1.street.value = 'business street'
+    add1.city.value = 'business city'
+    add1.postal_code.value = 'business postal_code'
+    add1.country_region.value = 'business country_region'
+    con.physical_addresses.add(add1)
+
+    add2 = PostalAddress()
+    add2.add_attrib('Key', PhysicalAddressType.Home)
+    add2.street.value = 'home street'
+    add2.city.value = 'home city'
+    add2.postal_code.value = 'home postal_code'
+    add2.country_region.value = 'home country_region'
+    con.physical_addresses.add(add2)
+
+    add3 = PostalAddress()
+    add3.add_attrib('Key', PhysicalAddressType.Other)
+    add3.street.value = 'other street'
+    add3.city.value = 'other city'
+    add3.postal_code.value = 'other postal_code'
+    add3.state.value = 'other state'
+    add3.country_region.value = 'other country_region'
+    con.physical_addresses.add(add3)
+
+    # Main address used in Exchange one in ("Business", "Home", "Other")
+    con.postal_address_index.value = PhysicalAddressType.Other
+
+    # con.save()
     ews.CreateItems(fid, [con])
 
 

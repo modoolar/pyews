@@ -48,6 +48,32 @@ class CField(Field):
 
         return s
 
+    # def write_to_xml(self):
+    #     ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
+    #     s += '\n  <t:%s %s>%s</t:%s>' % (self.tag, ' '.join(ats),
+    #                                      escape(self.value), self.tag)
+
+    #     return s
+
+    # def write_to_xml(self):
+    #     # if isinstance(self, CompleteName):
+    #     #    import pdb; pdb.set_trace()
+    #     if self.children:
+    #         xmls = [x.write_to_xml() for x in self.children if not isinstance(x, basestring)]
+    #         xmls_not_none = [y for y in xmls if y is not None]
+    #         if xmls_not_none:
+    #             ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
+    #             xmls_not_none.insert(0, '<t:%s %s>' % (self.tag, ' '.join(ats)))
+    #             xmls_not_none.append('</t:%s>' % self.tag)
+
+    #             return ' '.join([y for y in xmls_not_none if y is not None])
+
+    #     else:
+    #         if self.value is not None:
+    #             ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
+    #             return  '<t:%s %s>%s</t:%s>' % (self.tag, ' '.join(ats),
+    #                                      escape(self.value), self.tag)
+
 
 class FileAs(CField):
 
@@ -144,6 +170,25 @@ class CompleteName(CField):
                          self.last_name, self.suffix, self.initials,
                          self.nickname]
 
+    def write_to_xml(self):
+        """
+        Return an XML representation of this field.
+        """
+
+        children = self.get_children()
+
+        if ((self.value is not None) or (len(self.attrib) > 0) or
+                (len(children) > 0)):
+
+            text = self.value_as_xml()
+            ats = self.atts_as_xml()
+            cs = self.children_as_xml()
+
+            ret = '<t:%s %s>%s%s</t:%s>' % (self.tag, ats, text, cs, self.tag)
+            return ret
+        else:
+            return ''
+
 
 class SpouseName(CField):
 
@@ -205,6 +250,62 @@ class Notes(CField):
             # 'IsTruncated' : 'False'
         }
         self.furi = FieldURI(text='item:Body')
+
+
+class PostalAddress(CField):
+    # <t:Street/>
+    # <t:City/>
+    # <t:State/>
+    # <t:CountryOrRegion/>
+    # <t:PostalCode/
+    class Street(CField):
+        def __init__(self, text=None):
+            CField.__init__(self, 'Street', text)
+
+    class City(CField):
+        def __init__(self, text=None):
+            CField.__init__(self, 'City', text)
+
+    class State(CField):
+        def __init__(self, text=None):
+            CField.__init__(self, 'State', text)
+
+    class CountryOrRegion(CField):
+        def __init__(self, text=None):
+            CField.__init__(self, 'CountryOrRegion', text)
+
+    class PostalCode(CField):
+        def __init__(self, text=None):
+            CField.__init__(self, 'PostalCode', text)
+
+    def __init__(self, addr_dict=None):
+        CField.__init__(self, 'Entry', addr_dict)
+        self.attrib = {
+            'Key': None,
+        }
+        self.street = self.Street()
+        self.city = self.City()
+        self.state = self.State()
+        self.country_region = self.CountryOrRegion()
+        self.postal_code = self.PostalCode()
+        self.children = [self.street, self.city, self.state,
+                         self.country_region, self.postal_code]
+
+    def key(self):
+        return self.attrib['Key']
+
+
+class PostalAddresses(CField):
+
+    def __init__(self, node=None):
+        CField.__init__(self, 'PhysicalAddresses')
+        self.children = self.entries = []
+
+    def add(self, addr_obj):
+        self.entries.append(addr_obj)
+
+    def get_children(self):
+        return self.entries
 
 
 class EmailAddresses(CField):
@@ -400,32 +501,9 @@ class PhoneNumbers(CField):
         return s
 
 
-class Categories(CField):
-
-    class Category(CField):
-
-        def __init__(self, text=None):
-            CField.__init__(self, 'String', text)
-
-    def __init__(self, node=None):
-        CField.__init__(self, 'Categories')
-        self.children = self.entries = []
-        if node is not None:
-            self.populate_from_node(node)
-
-    def populate_from_node(self, node):
-        for child in node:
-            cat = self.Category()
-            cat.value = child.text
-            self.entries.append(cat)
-
-    def add(self, catname):
-        cat = self.Category()
-        cat.value = catname
-        self.entries.append(cat)
-
-    def has_updates(self):
-        return len(self.entries) > 0
+class PostalAddressIndex(CField):
+    def __init__(self, text=None):
+        CField.__init__(self, 'PostalAddressIndex', text)
 
 
 class BusinessHomePage(CField):
@@ -513,8 +591,10 @@ class Contact(Item):
         self.notes = Notes()
         self.emails = EmailAddresses()
         self.ims = ImAddresses()
+        self.physical_addresses = PostalAddresses()
         self.phones = PhoneNumbers()
         self.business_home_page = BusinessHomePage()
+        self.postal_address_index = PostalAddressIndex()
 
         self.gender = Gender()
         self.personal_home_page = PersonalHomePage()
@@ -725,13 +805,13 @@ class Contact(Item):
         self.children = [self.notes] + self.eprops + [
             self.categories, self.gender,
             self.personal_home_page, self.file_as,
-            self.display_name, cn.given_name, cn.initials,
-            cn.middle_name, cn.nickname, self.company_name,
-            self.emails, self.phones, self.assistant_name,
+            self.display_name, self.company_name,
+            self.emails, self.physical_addresses, self.phones,
+            self.assistant_name,
             self.birthday, self.business_home_page,
             self.department, self.ims, self.job_title,
-            self.manager, self.spouse_name, cn.surname,
-            self.anniversary, self.alias]
+            self.emails, self.physical_addresses, self.phones,
+            self.assistant_name, self.anniversary, self.alias]
 
         return self.children
 

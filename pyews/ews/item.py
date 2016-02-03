@@ -86,11 +86,14 @@ class Field:
         return ' '.join(ats)
 
     def value_as_xml(self):
-        return escape(self.value) if self.value is not None else ''
+        return escape(unicode(self.value)) if self.value is not None else ''
 
     def children_as_xml(self):
         self.children = self.get_children()
-        xmls = [x.write_to_xml() for x in self.children]
+        # xmls = [x.write_to_xml() for x in self.children]
+        xmls = [x.write_to_xml() for x in self.children if not isinstance(
+            x, basestring)]
+
         return '\n'.join([y for y in xmls if y is not None])
 
     def write_to_xml(self):
@@ -390,7 +393,7 @@ class ExtendedProperty(Field):
         return mapitags.PROP_TAG(ptype, pid)
 
     def set(self, value):
-        self.value.set(value)
+        self.value = value
 
     ##
     # Some helper methods to easily "recognize" the extended properties
