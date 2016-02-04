@@ -40,12 +40,25 @@ def main():
 
     root = bind()
     cfs = root.FindFolders(types=FolderClass.Contacts)
+    # test_fetch_contact_folder(root)
 
-    # test_create_folder(root)
+    # odoo_contact_folder_search = cfs[0].FindFolderByDisplayName(
+    #     'Odoo Contacts',
+    #     types=[FolderClass.Contacts])
+    # if odoo_contact_folder_search and len(odoo_contact_folder_search) == 1:
+    #     test_delete_folder([odoo_contact_folder_search[0].Id])
+
+    # test_create_folder(cfs[0])
+
     # test_find_item(cons[0].itemid.text)
 
-    test_create_item(ews, cfs[0].Id)
+    odoo_contact_folder_search = cfs[0].FindFolderByDisplayName(
+        'Odoo Contacts',
+        types=[FolderClass.Contacts])
+    Cid, Cck = test_create_item(ews, odoo_contact_folder_search[0].Id)
 
+    contact = test_find_item(Cid)
+    test_update_item(Cid, Cck, contact.parent_fid)
     # cons = test_list_items(root, ids_only=True)
 
     # iid = 'AAAcAHNrYXJyYUBhc3luay5vbm1pY3Jvc29mdC5jb20ARgAAAAAA6tvK38NMgEiPr'
@@ -59,16 +72,24 @@ def bind():
     return Folder.bind(ews, WellKnownFolderName.MsgFolderRoot)
 
 
-def test_fetch_contact_folder():
-    contacts = root.fetch_all_folders(types=FolderClass.Contacts)
+def test_fetch_contact_folder(folder):
+    contacts = folder.fetch_all_folders(types=FolderClass.Contacts)
     for f in contacts:
         print 'DisplayName: %s; Id: %s' % (f.DisplayName, f.Id)
 
 
 def test_create_folder(parent):
-    resp = ews.CreateFolder(parent.Id,
-                            [('Test Contacts', FolderClass.Contacts)])
-    print utils.pretty_xml(resp)
+    exists = parent.FindFolderByDisplayName(
+        "Odoo Contacts",
+        types=[FolderClass.Contacts])
+    if not exists:
+        resp = ews.CreateFolder(parent.Id,
+                                [('Odoo Contacts', FolderClass.Contacts)])
+    # print utils.pretty_xml(resp)
+
+
+def test_delete_folder(folders):
+    resp = ews.DeleteFolder(folders)
 
 
 def test_list_items(root, ids_only):
@@ -152,17 +173,27 @@ def test_create_item(ews, fid):
     con.postal_address_index.value = PhysicalAddressType.Home
 
     # con.save()
-    ews.CreateItems(fid, [con])
+    Id, CK = ews.CreateItem(fid, con)
+
+    # read created contact
+    # read_con = ews.GetItems([Id])
+    return Id, CK
 
 
 def test_update_item(itemid, ck, pfid):
+    # con = ews.GetItems([itemid])[0]
     con = Contact(ews, pfid)
     con.itemid.value = itemid
     con.change_key.value = ck
     con.job_title.value = 'Chief comedian'
-    con.gender.value = 1
-    con.phones.add('PrimaryPhone', '+91 90088 02194')
-    con.save()
+    con.phones.add(PhoneKey.AssistantPhone, '+91 90088 02194')
+
+    add3 = PostalAddress()
+    add3.add_attrib('Key', PhysicalAddressType.Other)
+    add3.street.value = 'ororo'
+    con.physical_addresses.add(add3)
+
+    ews.UpdateItems([con])
 
 if __name__ == "__main__":
     main()

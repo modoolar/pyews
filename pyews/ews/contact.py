@@ -48,31 +48,8 @@ class CField(Field):
 
         return s
 
-    # def write_to_xml(self):
-    #     ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
-    #     s += '\n  <t:%s %s>%s</t:%s>' % (self.tag, ' '.join(ats),
-    #                                      escape(self.value), self.tag)
-
-    #     return s
-
-    # def write_to_xml(self):
-    #     # if isinstance(self, CompleteName):
-    #     #    import pdb; pdb.set_trace()
-    #     if self.children:
-    #         xmls = [x.write_to_xml() for x in self.children if not isinstance(x, basestring)]
-    #         xmls_not_none = [y for y in xmls if y is not None]
-    #         if xmls_not_none:
-    #             ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
-    #             xmls_not_none.insert(0, '<t:%s %s>' % (self.tag, ' '.join(ats)))
-    #             xmls_not_none.append('</t:%s>' % self.tag)
-
-    #             return ' '.join([y for y in xmls_not_none if y is not None])
-
-    #     else:
-    #         if self.value is not None:
-    #             ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
-    #             return  '<t:%s %s>%s</t:%s>' % (self.tag, ' '.join(ats),
-    #                                      escape(self.value), self.tag)
+    def write_to_xml_update2(self):
+        return '<t:%s>%s</t:%s>' % (self.tag, escape(self.value), self.tag)
 
 
 class FileAs(CField):
@@ -291,8 +268,27 @@ class PostalAddress(CField):
         self.children = [self.street, self.city, self.state,
                          self.country_region, self.postal_code]
 
+        self.tag_field_mapping = {
+            'Street': 'street',
+            'City': 'city',
+            'State': 'state',
+            'CountryOrRegion': 'country_region',
+            'PostalCode': 'postal_code'
+        }
+
     def key(self):
         return self.attrib['Key']
+
+    def write_to_xml_update(self):
+        ret = []
+        for field in self.children:
+            ret.append(field.write_to_xml())
+        return '\n'.join(ret)
+
+    def populate_from_node(self, node):
+        for child in node:
+            tag = unQName(child.tag)
+            getattr(self, self.tag_field_mapping[tag]).value = child.text
 
 
 class PostalAddresses(CField):
@@ -306,6 +302,57 @@ class PostalAddresses(CField):
 
     def get_children(self):
         return self.entries
+
+    def populate_from_node(self, node):
+        for child in node:
+            addr = PostalAddress()
+            for k, v in child.attrib.iteritems():
+                addr.add_attrib(k, v)
+            addr.populate_from_node(child)
+            self.entries.append(addr)
+
+    def get_address_from_key(self, key):
+        for addr in self.entries:
+            if addr.attrib['Key'] == key:
+                return addr
+
+    def has_updates(self):
+        return len(self.entries) > 0
+
+    def edit(self, key, update_dict):
+        addr = self.get_address_from_key(key)
+        if addr:
+            for k, v in update_dict.iteritems():
+                getattr(addr, k).value = v
+
+    def write_to_xml_update(self):
+        """
+        See following link for explaination:
+
+        http://stackoverflow.com/questions/13455697/
+        updating-a-contacts-physical-address-with-php-ews
+        """
+        ret = []
+        for addr in self.entries:
+            for field in addr.children:
+                # import pdb; pdb.set_trace()
+                field_class_name = field.__class__.__name__
+                if field.value is not None:
+                    s = ''
+                    s += '\n<t:IndexedFieldURI FieldURI="' \
+                         'contacts:PhysicalAddress:%s"' % field_class_name
+                    s += ' FieldIndex="%s"/>' % addr.attrib['Key']
+                    s += '\n<t:Contact>'
+                    s += '\n  <t:PhysicalAddresses>'
+                    s += '\n    <t:Entry Key="%s">%s</t:Entry>' % (
+                       addr.attrib['Key'],
+                       field.write_to_xml_update2())
+                    s += '\n  </t:PhysicalAddresses>'
+                    s += '\n</t:Contact>'
+                    ret.append(s)
+
+        t = '\n</t:SetItemField>\n<t:SetItemField>'
+        return t.join(ret)
 
 
 class EmailAddresses(CField):
@@ -711,6 +758,8 @@ class Contact(Item):
                 self.emails.populate_from_node(child)
             elif tag == 'ImAddresses':
                 self.ims.populate_from_node(child)
+            elif tag == 'PhysicalAddresses':
+                self.physical_addresses.populate_from_node(child)
             elif tag == 'PhoneNumbers':
                 self.phones.populate_from_node(child)
             elif tag == 'BusinessHomePage':
@@ -759,14 +808,14 @@ class Contact(Item):
             self._displayname = self._firstname + ' ' + self._lastname
 
         # yet to support following which are really multi-valued properties
-        ## - Companies
-        ## - PhysicalAddresses
-        ## - ImAddresses
+        # - Companies
+        # - PhysicalAddresses
+        # - ImAddresses
 
         # yet to support following which are not returned normally and have
         # to be dealt with as extended properties.
-        ## - gender
-        ## - LastModifiedTime
+        # - gender
+        # - LastModifiedTime
 
     ##
     # Inherited methods. For doc see item.py

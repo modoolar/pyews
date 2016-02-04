@@ -11,7 +11,7 @@
     <soap:Header>
       <t:ExchangeImpersonation>
         <t:ConnectingSID>
-            <t:PrincipalName>{{ primary_smtp_address }}</t:PrincipalName>
+          <t:PrincipalName>{{ primary_smtp_address }}</t:PrincipalName>
         </t:ConnectingSID>
       </t:ExchangeImpersonation>
     </soap:Header>

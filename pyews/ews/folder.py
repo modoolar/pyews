@@ -72,6 +72,12 @@ class Folder:
     # be a complete copy of the Managed API.
     ##
 
+    def FindFolderByDisplayName(self, display_name, types=None,
+                                recursive=False):
+        folders = self.FindFolders(types=types, recursive=recursive)
+        match_folders = [x for x in folders if x.DisplayName == display_name]
+        return match_folders
+
     def FindFolders(self, types=None, recursive=False):
         """Walk through the entire folder hierarchy of the message store and
         return an array of Folder objects of specified types.

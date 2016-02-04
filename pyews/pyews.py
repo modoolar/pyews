@@ -126,8 +126,10 @@ class ExchangeService(object):
                      folder_ids)
 
         dt = 'HardDelete'if hard_delete else 'SoftDelete'
-        req = self._render_template(utils.REQ_DELETE_FOLDER,
-                                    delete_type=dt, folder_ids=folder_ids)
+        req = self._render_template(
+            utils.REQ_DELETE_FOLDER,
+            delete_type=dt, folder_ids=folder_ids,
+            primary_smtp_address=self.primary_smtp_address)
         try:
             resp, node = self.send(req)
             logging.info('pimdb_ex:DeleteFolder() - successfully deleted.')
@@ -260,13 +262,27 @@ class ExchangeService(object):
 
     def CreateItems(self, folder_id, items):
         """Create items in the exchange store."""
-
         logging.info('pimdb_ex:CreateItems() - creating items....')
         req = CreateItemsRequest(self, folder_id=folder_id, items=items)
         resp = req.execute()
 
         logging.info('pimdb_ex:CreateItems() - creating items....done')
         return resp
+
+    def CreateItem(self, folder_id, item):
+        """Create one item and return its Id and ChangeKey"""
+        logging.info('pimdb_ex:CreateItem() - creating one item....')
+        req = CreateItemsRequest(self, folder_id=folder_id, items=[item])
+        resp = req.execute()
+
+        logging.info('pimdb_ex:CreateItem() - creating items....done')
+        resp_dict = resp.get_itemids()
+        # as we only gave one item to create, we can use [0]
+        Id = resp_dict.keys()[0]
+        CK = resp_dict[Id]
+        logging.info('pimdb_ex:CreateItem() - RETURN VALUES: %s %s' % (Id, CK))
+
+        return Id, CK
 
     def DeleteItems(self, itemids):
         """Delete items in the exchange store."""
