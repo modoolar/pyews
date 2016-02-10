@@ -346,8 +346,11 @@ class ExchangeService(object):
 
     def get_distinguished_folder(self, name):
         elem = u'<t:DistinguishedFolderId Id="%s"/>' % name
-        req = self._render_template(utils.REQ_GET_FOLDER,
-                                    folder_ids=elem)
+        req = self._render_template(
+                utils.REQ_GET_FOLDER,
+                folder_ids=elem,
+                primary_smtp_address=self.primary_smtp_address
+                )
         return self.soap.send(req)
 
     def get_root_folder(self):
