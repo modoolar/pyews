@@ -141,7 +141,7 @@ class Response(object):
         if self.has_errors():
             logging.error('Response.parse: Found %d errors', self.err_cnt)
             for ind, err in self.errors.iteritems():
-                logging.error('  Item num %02d - %s', ind, str(err))
+                logging.error('  Item num %02d - %s', ind, err)
 
     def has_errors(self):
         return self.err_cnt > 0

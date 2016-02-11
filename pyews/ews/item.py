@@ -91,8 +91,8 @@ class Field:
     def children_as_xml(self):
         self.children = self.get_children()
         # xmls = [x.write_to_xml() for x in self.children]
-        xmls = [x.write_to_xml() for x in self.children if not isinstance(
-            x, basestring)]
+        xmls = [x.write_to_xml() for x in self.children if not (isinstance(
+            x, basestring) or x is None)]
 
         return '\n'.join([y for y in xmls if y is not None])
 

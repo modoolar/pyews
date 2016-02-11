@@ -109,7 +109,7 @@ class Folder:
 
         req = GetFolderRequest(service, folder_name=wkfn)
         resp = req.execute()
-        return Folder(service, wkfn, resp.folder_node)
+        return Folder(service, wkfn, node=resp.folder_node)
 
     ##
     # Internal methods
