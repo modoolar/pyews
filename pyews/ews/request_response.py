@@ -26,7 +26,7 @@ from abc import ABCMeta, abstractmethod
 from pyews.soap import SoapClient, QName_S, QName_T, QName_M
 from pyews.utils import pretty_xml
 from pyews.ews.contact import Contact
-from pyews.ews.errors import EWSMessageError, EWSResponseError
+from pyews.ews.errors import EWSMessageError, EWSResponseError, EWSBaseErrorStr
 
 ##
 # Base classes
@@ -404,10 +404,55 @@ class FindItemsResponse(Response):
         for cxml in self.node.iter(QName_T('Contact')):
             self.items.append(Contact(self, resp_node=cxml))
 
+
+##
+# SearchContactByEmail
+##
+
+class SearchContactByEmailRequest(Request):
+
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_FIND_ITEM_MAIL)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    ##
+    # Implement the abstract methods
+    ##
+
+    def execute(self):
+        print '*** WTF: ', self.kwargs
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = SearchContactByEmailResponse(self, self.resp_node)
+
+        return self.resp_obj
+
+
+class SearchContactByEmailResponse(Response):
+
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+        self.snarf_includes_last()
+        self.parse_for_errors(QName_M('FindItemResponseMessage'))
+
+        self.items = []
+        # FIXME: As we support additional item types we will add more such
+        # loops.
+        for cxml in self.node.iter(QName_T('Contact')):
+            self.items.append(Contact(self, resp_node=cxml))
+
+
 ##
 # FindItemsLMT
 ##
-
 
 class FindItemsLMTRequest(Request):
 
@@ -485,6 +530,12 @@ class GetContactsResponse(Response):
         """
 
         self.parse_for_errors(QName_M('GetItemResponseMessage'))
+
+        if self.has_errors():
+            errs = []
+            for ind, err in self.errors.iteritems():
+                errs.append(err.msg_text)
+            raise EWSBaseErrorStr('\n'.join(errs))
 
         self.items = []
         for cxml in self.node.iter(QName_T('Contact')):

@@ -38,6 +38,8 @@ from ews.request_response import FindItemsRequest, FindItemsResponse
 from ews.request_response import CreateItemsRequest, CreateItemsResponse
 from ews.request_response import DeleteItemsRequest, DeleteItemsResponse
 from ews.request_response import FindItemsLMTRequest, FindItemsLMTResponse
+from ews.request_response import (SearchContactByEmailRequest,
+                                  SearchContactByEmailResponse)
 from ews.request_response import UpdateItemsRequest, UpdateItemsResponse
 from ews.request_response import (SyncFolderItemsRequest,
                                   SyncFolderItemsResponse)
@@ -182,6 +184,43 @@ class ExchangeService(object):
                                  eprops_xml=eprops_xml)
         else:
             return ret
+
+    def SearchContactByEmail(self, folder, email):
+        """
+            Search by exact email (case sensitive and fullstring)
+            search into EmailAddress1 OR EmailAddress2 OR EmailAddress3
+        """
+        logging.info(
+            'pimdb_ex:SearchContactByEmail() - fetching items in folder %s...',
+            folder.DisplayName)
+        i = 0
+        ret = []
+        while True:
+            req = SearchContactByEmailRequest(self,
+                                              batch_size=self.batch_size(),
+                                              offset=i, folder_id=folder.Id,
+                                              email=email)
+            resp = req.execute()
+            shells = resp.items
+            if shells is not None and len(shells) > 0:
+                ret += shells
+
+            if resp.includes_last:
+                break
+
+            i += self.batch_size()
+            # just a safety net to avoid inifinite loops
+            if i >= folder.TotalCount:
+                logging.warning(
+                    'pimdb_ex.SearchContactByEmail(): Breaking strange loop')
+                break
+
+        logging.info(
+            'pimdb_ex:SearchContactByEmail() - '
+            'fetching items in folder %s...done',
+            folder.DisplayName)
+
+        return ret
 
     def FindItemsLMT(self, folder, lmt):
         """

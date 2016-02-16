@@ -21,6 +21,10 @@
 from pyews.soap import SoapClient, SoapMessageError, QName_M
 
 
+class EWSBaseErrorStr(Exception):
+    pass
+
+
 class EWSMessageError(Exception):
 
     def __init__(self, resp_obj):
