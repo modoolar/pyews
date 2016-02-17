@@ -278,8 +278,42 @@ class CreateItemsResponse(Response):
 
 
 ##
+# MoveItems
+##
+
+class MoveItemsRequest(Request):
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_MOVE_ITEM)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = MoveItemsResponse(self, self.resp_node)
+
+        return self.resp_obj
+
+
+class MoveItemsResponse(Response):
+
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+
+        self.parse_for_errors(QName_M('MoveItemResponseMessage'))
+
+
+##
 # DeleteItems
 ##
+
 
 class DeleteItemsRequest(Request):
 

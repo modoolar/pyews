@@ -40,6 +40,8 @@ from ews.request_response import DeleteItemsRequest, DeleteItemsResponse
 from ews.request_response import FindItemsLMTRequest, FindItemsLMTResponse
 from ews.request_response import (SearchContactByEmailRequest,
                                   SearchContactByEmailResponse)
+from ews.request_response import (MoveItemsRequest,
+                                  MoveItemsResponse)
 from ews.request_response import UpdateItemsRequest, UpdateItemsResponse
 from ews.request_response import (SyncFolderItemsRequest,
                                   SyncFolderItemsResponse)
@@ -329,6 +331,15 @@ class ExchangeService(object):
         logging.info('pimdb_ex:DeleteItems() - deleting items....')
         req = DeleteItemsRequest(self, itemids=itemids)
         logging.info('pimdb_ex:DeleteItems() - deleting items....done')
+
+        return req.execute()
+
+    def MoveItems(self, folder_id, itemids):
+        """Move items in the exchange store."""
+
+        logging.info('pimdb_ex:MoveItems() - moveing items....')
+        req = MoveItemsRequest(self, folder_id=folder_id, itemids=itemids)
+        logging.info('pimdb_ex:MoveItems() - moveing items....done')
 
         return req.execute()
 
