@@ -58,6 +58,8 @@ class Request(object):
         # pdb.set_trace()
         r = self.ews.loader.load(self.template).generate(**self.kwargs)
         r = utils.pretty_xml(r)
+        # uncomment next line to see request sent to exchange server
+        #print r
 
         if debug:
             logging.debug('Request: %s', r)
