@@ -1,0 +1,32 @@
+{% extends "base_request.xml" %}
+
+{% block body %}
+  <m:FindItem Traversal="Shallow">
+    <m:ItemShape>
+      <t:BaseShape>IdOnly</t:BaseShape>
+    </m:ItemShape>
+    <m:Restriction>
+      <t:Or>
+
+        <t:Contains ContainmentMode="FullString" ContainmentComparison="Exact">
+          <t:IndexedFieldURI FieldURI="contacts:EmailAddress" FieldIndex="EmailAddress1" />
+            <t:Constant Value="{{ email }}" />
+        </t:Contains>
+
+        <t:Contains ContainmentMode="FullString" ContainmentComparison="Exact">
+          <t:IndexedFieldURI FieldURI="contacts:EmailAddress" FieldIndex="EmailAddress2" />
+            <t:Constant Value="{{ email }}" />
+        </t:Contains>
+
+        <t:Contains ContainmentMode="FullString" ContainmentComparison="Exact">
+          <t:IndexedFieldURI FieldURI="contacts:EmailAddress" FieldIndex="EmailAddress3" />
+            <t:Constant Value="{{ email }}" />
+        </t:Contains>
+      </t:Or>
+    </m:Restriction>
+    <m:ParentFolderIds>
+      <t:FolderId Id="{{ folder_id }} " />
+    </m:ParentFolderIds>
+  </m:FindItem>
+{% end %}
+

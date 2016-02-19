@@ -1,0 +1,14 @@
+{% extends "base_request.xml" %}
+
+{% block body %}
+    <m:MoveItem>
+        <m:ToFolderId>
+            <t:FolderId Id="{{ folder_id }}"/>
+        </m:ToFolderId>
+        <m:ItemIds>
+            {% for itemid in itemids %}
+                <t:ItemId Id="{{ itemid }}"/>
+            {% end %}
+        </m:ItemIds>
+    </m:MoveItem>
+{% end %}
