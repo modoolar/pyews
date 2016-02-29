@@ -34,5 +34,5 @@ setup(name='pyews',
       ],
       py_modules=['pyews'],
       tests_require=['nose>=1.0', 'coverage'],
-      install_requires=['requests==2.9.1', 'tornado==4.2.1'],
+      install_requires=['requests==2.9.1', 'tornado==4.3'],
       )
