@@ -179,6 +179,12 @@ class SpouseName(CField):
         CField.__init__(self, 'SpouseName', text)
 
 
+class Profession(CField):
+
+    def __init__(self, text=None):
+        CField.__init__(self, 'Profession', text)
+
+
 class JobTitle(CField):
 
     def __init__(self, text=None):
@@ -388,6 +394,43 @@ class PostalAddresses(CField):
 
         # t = '\n</t:DeleteItemField>\n<t:DeleteItemField>'
         return '\n'.join(ret)
+
+
+class Categories(CField):
+    class Category(CField):
+        def __init__(self, text=None):
+            CField.__init__(self, 'String', text)
+
+        def __str__(self):
+            return 'Category %s' % (self.value)
+
+    def __init__(self, node=None):
+        CField.__init__(self, 'Categories')
+        self.children = self.entries = []
+        if node is not None:
+            self.populate_from_node(node)
+
+    def populate_from_node(self, node):
+        for child in node:
+            categ = self.Category()
+            categ.value = child.text
+            self.entries.append(categ)
+
+    def already_exists(self, categ_str):
+        for entry in self.entries:
+            if entry.value == categ_str:
+                return True
+        return False
+
+    def add(self, categ_str):
+        if categ_str is not None:
+            if not self.already_exists(categ_str):
+                categ = self.Category()
+                categ.value = categ_str
+                self.entries.append(categ)
+
+    def has_updates(self):
+        return len(self.entries) > 0
 
 
 class EmailAddresses(CField):
@@ -707,6 +750,7 @@ class Contact(Item):
                  resp_node=None, mapped_data=None):
         Item.__init__(self, service, parent_fid, resp_node, tag='Contact')
 
+        self.categories = Categories()
         self.file_as = FileAs()
         self.alias = Alias()
         self.complete_name = CompleteName()
@@ -714,6 +758,7 @@ class Contact(Item):
         self.spouse_name = SpouseName()
 
         self.job_title = JobTitle()
+        self.profession = Profession()
         self.company_name = CompanyName()
         self.department = Department()
         self.manager = Manager()
@@ -938,6 +983,7 @@ class Contact(Item):
         # this contact for CreateItem and update operations. The order of
         # these fields is critical. I know, it's crazy.
         self.children = [self.notes] + self.eprops + [
+             self.categories,
              self.gender,
              self.personal_home_page, self.file_as,
              self.display_name, cn.given_name, cn.initials,
@@ -946,9 +992,8 @@ class Contact(Item):
              self.assistant_name,
              self.birthday, self.business_home_page,
              self.department, self.ims, self.job_title,
-             self.manager, self.postal_address_index, self.spouse_name,
-             cn.surname,
-             self.anniversary, self.alias]
+             self.manager, self.postal_address_index, self.profession,
+             self.spouse_name, cn.surname, self.anniversary, self.alias]
 
         return self.children
 
