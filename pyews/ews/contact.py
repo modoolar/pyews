@@ -64,6 +64,12 @@ class FileAs(CField):
         CField.__init__(self, 'FileAs', text)
 
 
+class FileAsMapping(CField):
+
+    def __init__(self, text=None):
+        CField.__init__(self, 'FileAsMapping', text)
+
+
 class Alias(CField):
 
     def __init__(self, text=None):
@@ -752,6 +758,7 @@ class Contact(Item):
 
         self.categories = Categories()
         self.file_as = FileAs()
+        self.file_as_mapping = FileAsMapping()
         self.alias = Alias()
         self.complete_name = CompleteName()
         self.display_name = DisplayName()
@@ -985,7 +992,7 @@ class Contact(Item):
         self.children = [self.notes] + self.eprops + [
              self.categories,
              self.gender,
-             self.personal_home_page, self.file_as,
+             self.personal_home_page, self.file_as, self.file_as_mapping,
              self.display_name, cn.given_name, cn.initials,
              cn.middle_name, cn.nickname, self.company_name,
              self.emails, self.physical_addresses, self.phones,
