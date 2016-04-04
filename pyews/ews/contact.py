@@ -588,6 +588,31 @@ class ImAddresses(CField):
         t = '\n</t:SetItemField>\n<t:SetItemField>'
         return t.join(ret)
 
+    def write_to_xml_delete(self):
+        ret = []
+        for email in self.entries:
+            if email.value is None:
+
+                s = '<t:DeleteItemField>'
+                s += '\n<t:IndexedFieldURI FieldURI="' \
+                     'contacts:ImAddresses"'
+                s += ' FieldIndex="%s"/>' % email.attrib['Key']
+                # s += '\n<t:Contact>'
+                # s += '\n  <t:PhysicalAddresses>'
+                # s += '\n    <t:Entry Key="%s">%s</t:Entry>' % (
+                #    addr.attrib['Key'],
+                #    field.write_to_xml_update2())
+                # s += '\n  </t:PhysicalAddresses>'
+                # s += '\n</t:Contact>'
+                s += '</t:DeleteItemField>'
+                ret.append(s)
+            else:
+                ret.append('<t:SetItemField>')
+                ret.append(self.write_to_xml_update())
+                ret.append('</t:SetItemField>')
+
+        return '\n'.join(ret)
+
     def __str__(self):
         s = '%s Addresses: ' % len(self.entries)
         s += '; '.join([str(x) for x in self.entries])
