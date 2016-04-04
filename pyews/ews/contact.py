@@ -64,6 +64,12 @@ class FileAs(CField):
         CField.__init__(self, 'FileAs', text)
 
 
+class FileAsMapping(CField):
+
+    def __init__(self, text=None):
+        CField.__init__(self, 'FileAsMapping', text)
+
+
 class Alias(CField):
 
     def __init__(self, text=None):
@@ -582,6 +588,31 @@ class ImAddresses(CField):
         t = '\n</t:SetItemField>\n<t:SetItemField>'
         return t.join(ret)
 
+    def write_to_xml_delete(self):
+        ret = []
+        for email in self.entries:
+            if email.value is None:
+
+                s = '<t:DeleteItemField>'
+                s += '\n<t:IndexedFieldURI FieldURI="' \
+                     'contacts:ImAddresses"'
+                s += ' FieldIndex="%s"/>' % email.attrib['Key']
+                # s += '\n<t:Contact>'
+                # s += '\n  <t:PhysicalAddresses>'
+                # s += '\n    <t:Entry Key="%s">%s</t:Entry>' % (
+                #    addr.attrib['Key'],
+                #    field.write_to_xml_update2())
+                # s += '\n  </t:PhysicalAddresses>'
+                # s += '\n</t:Contact>'
+                s += '</t:DeleteItemField>'
+                ret.append(s)
+            else:
+                ret.append('<t:SetItemField>')
+                ret.append(self.write_to_xml_update())
+                ret.append('</t:SetItemField>')
+
+        return '\n'.join(ret)
+
     def __str__(self):
         s = '%s Addresses: ' % len(self.entries)
         s += '; '.join([str(x) for x in self.entries])
@@ -752,6 +783,7 @@ class Contact(Item):
 
         self.categories = Categories()
         self.file_as = FileAs()
+        self.file_as_mapping = FileAsMapping()
         self.alias = Alias()
         self.complete_name = CompleteName()
         self.display_name = DisplayName()
@@ -985,7 +1017,7 @@ class Contact(Item):
         self.children = [self.notes] + self.eprops + [
              self.categories,
              self.gender,
-             self.personal_home_page, self.file_as,
+             self.personal_home_page, self.file_as, self.file_as_mapping,
              self.display_name, cn.given_name, cn.initials,
              cn.middle_name, cn.nickname, self.company_name,
              self.emails, self.physical_addresses, self.phones,
