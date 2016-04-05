@@ -486,14 +486,15 @@ class EmailAddresses(CField):
     def write_to_xml_update(self):
         ret = []
         for email in self.entries:
-            email_value = email.value or ''
+            if email.value is None:
+                continue
             s = ''
             s += '\n<t:IndexedFieldURI FieldURI="contacts:EmailAddress" '
             s += 'FieldIndex="%s"/>' % email.attrib['Key']
             s += '\n<t:Contact>'
             s += '\n  <t:EmailAddresses>'
             s += '\n    <t:Entry Key="%s">%s</t:Entry>' % (email.attrib['Key'],
-                                                           escape(email_value))
+                                                           escape(email.value))
             s += '\n  </t:EmailAddresses>'
             s += '\n</t:Contact>'
             ret.append(s)
