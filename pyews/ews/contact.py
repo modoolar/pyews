@@ -596,7 +596,7 @@ class ImAddresses(CField):
 
                 s = '<t:DeleteItemField>'
                 s += '\n<t:IndexedFieldURI FieldURI="' \
-                     'contacts:ImAddresses"'
+                     'contacts:ImAddress"'
                 s += ' FieldIndex="%s"/>' % email.attrib['Key']
                 # s += '\n<t:Contact>'
                 # s += '\n  <t:PhysicalAddresses>'
