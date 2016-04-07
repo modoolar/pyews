@@ -45,6 +45,8 @@ from ews.request_response import (MoveItemsRequest,
 from ews.request_response import UpdateItemsRequest, UpdateItemsResponse
 from ews.request_response import (SyncFolderItemsRequest,
                                   SyncFolderItemsResponse)
+from ews.request_response import (FindCalendarItemsRequest,
+                                  FindCalendarItemsResponse)
 
 from tornado import template
 from soap import SoapClient, SoapMessageError, QName_T
@@ -141,6 +143,43 @@ class ExchangeService(object):
             raise EWSMessageError(e.resp_code, e.xml_resp, e.node)
 
         return resp
+
+    def FindCalendarItems(self, folder, eprops_xml=[], ids_only=False):
+        """
+
+        """
+        logging.info('pimdb_ex:FindCalendarItems() - '
+                     'fetching items in folder %s...',
+                     folder.DisplayName)
+        i = 0
+        ret = []
+        while True:
+            req = FindCalendarItemsRequest(self, batch_size=self.batch_size(),
+                                           offset=i, folder_id=folder.Id)
+            resp = req.execute()
+            shells = resp.items
+            if shells is not None and len(shells) > 0:
+                ret += shells
+
+            if resp.includes_last:
+                break
+
+            i += self.batch_size()
+            # just a safety net to avoid inifinite loops
+            if i >= folder.TotalCount:
+                logging.warning('pimdb_ex.FindCalendarItems():'
+                                'Breaking strange loop')
+                break
+
+        logging.info('pimdb_ex:FindCalendarItems() - '
+                     'fetching items in folder %s...done',
+                     folder.DisplayName)
+
+        if len(ret) > 0 and not ids_only:
+            return self.GetCalendarItems([x.itemid for x in ret],
+                                         eprops_xml=eprops_xml)
+        else:
+            return ret
 
     def FindItems(self, folder, eprops_xml=[], ids_only=False):
         """
