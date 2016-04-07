@@ -29,6 +29,9 @@ REQ_DELETE_ITEM = template_fn("delete_item.xml")
 REQ_UPDATE_ITEM = template_fn("update_item.xml")
 REQ_SYNC_FOLDER = template_fn("sync_folder.xml")
 REQ_MOVE_ITEM = template_fn("move_item.xml")
+REQ_FIND_CAL_ITEM = template_fn("find_calendar_item.xml")
+REQ_GET_CALENDAR_ITEMS = template_fn("get_calendar_item.xml")
+
 
 def pretty_xml(x):
     x = xml.dom.minidom.parseString(x).toprettyxml()

@@ -47,6 +47,8 @@ from ews.request_response import (SyncFolderItemsRequest,
                                   SyncFolderItemsResponse)
 from ews.request_response import (FindCalendarItemsRequest,
                                   FindCalendarItemsResponse)
+from ews.request_response import (GetCalendarItemsRequest,
+                                  GetCalendarItemsResponse)
 
 from tornado import template
 from soap import SoapClient, SoapMessageError, QName_T
@@ -174,7 +176,7 @@ class ExchangeService(object):
         logging.info('pimdb_ex:FindCalendarItems() - '
                      'fetching items in folder %s...done',
                      folder.DisplayName)
-
+        import pdb; pdb.set_trace()
         if len(ret) > 0 and not ids_only:
             return self.GetCalendarItems([x.itemid for x in ret],
                                          eprops_xml=eprops_xml)
@@ -305,6 +307,16 @@ class ExchangeService(object):
             folder.DisplayName)
 
         return ret
+
+    def GetCalendarItems(self, calendar_item_ids, eprops_xml=[]):
+        logging.info('pimdb_ex:GetCalendarItems() - fetching items....')
+        req = GetCalendarItemsRequest(self,
+                                      calendar_item_ids=calendar_item_ids,
+                                      custom_eprops_xml=eprops_xml)
+        resp = req.execute()
+        logging.info('pimdb_ex:GetCalendarItems() - fetching items...done')
+
+        return resp.items
 
     def GetContacts(self, contact_ids, eprops_xml=[]):
         """

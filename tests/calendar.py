@@ -6,14 +6,14 @@
 import logging
 import sys
 
-from ..pyews.pyews import WebCredentials, ExchangeService
-from ..pyews.ews.autodiscover import EWSAutoDiscover, ExchangeAutoDiscoverError
-from ..pyews.ews.data import DistinguishedFolderId, WellKnownFolderName
-from ..pyews.ews.data import (FolderClass, GenderType, EmailKey, PhoneKey,
-                              PhysicalAddressType, ImAddressType)
-from ..pyews import utils
-from ..pyews.ews.folder import Folder
-from ..pyews.ews.calendar import *
+from pyews.pyews import WebCredentials, ExchangeService
+from pyews.ews.autodiscover import EWSAutoDiscover, ExchangeAutoDiscoverError
+from pyews.ews.data import DistinguishedFolderId, WellKnownFolderName
+from pyews.ews.data import (FolderClass, GenderType, EmailKey, PhoneKey,
+                            PhysicalAddressType, ImAddressType)
+from pyews import utils
+from pyews.ews.folder import Folder
+from pyews.ews.calendar import *
 
 
 def main():
@@ -43,3 +43,14 @@ def main():
     ews.init_soap_client()
 
     root = bind()
+    cfs = root.FindFolders(types=FolderClass.Calendars)
+    cals = ews.FindCalendarItems(cfs[0])
+    import pdb; pdb.set_trace()
+
+
+
+def bind():
+    return Folder.bind(ews, WellKnownFolderName.MsgFolderRoot)
+
+if __name__ == "__main__":
+    main()

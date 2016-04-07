@@ -69,7 +69,7 @@ class FolderClass:
     Contacts = 'IPF.Contact'
     Journals = 'IPF.Journal'
     Tasks = 'IPF.Task'
-    Calendars = 'IPF.Calendar'
+    Calendars = 'IPF.Appointment'
     Notes = 'IPF.Note'
 
 

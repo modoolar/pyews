@@ -26,6 +26,8 @@ from abc import ABCMeta, abstractmethod
 from pyews.soap import SoapClient, QName_S, QName_T, QName_M
 from pyews.utils import pretty_xml
 from pyews.ews.contact import Contact
+from pyews.ews.item import Item
+from pyews.ews.calendar import CalendarItem
 from pyews.ews.errors import EWSMessageError, EWSResponseError, EWSBaseErrorStr
 
 ##
@@ -477,9 +479,10 @@ class FindCalendarItemsResponse(Response):
         self.items = []
         # FIXME: As we support additional item types we will add more such
         # loops.
-        import pdb; pdb.set_trace()
-        for cxml in self.node.iter(QName_T('Contact')):
-            self.items.append(Contact(self, resp_node=cxml))
+        for cxml in self.node.iter(QName_T('CalendarItem')):
+            cal = CalendarItem(self, resp_node=cxml)
+            import pdb; pdb.set_trace()
+            self.items.append(cal)
 
 ##
 # SearchContactByEmail
@@ -570,6 +573,50 @@ class FindItemsLMTResponse(Response):
         # loops.
         for cxml in self.node.iter(QName_T('Contact')):
             self.items.append(Contact(self, resp_node=cxml))
+
+
+class GetCalendarItemsRequest(Request):
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_GET_CALENDAR_ITEMS)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    ##
+    # Implement the abstract methods
+    ##
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = GetCalendarItemsResponse(self, self.resp_node)
+
+        return self.resp_obj
+
+
+class GetCalendarItemsResponse(Response):
+
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+
+        self.parse_for_errors(QName_M('GetItemResponseMessage'))
+
+        if self.has_errors():
+            errs = []
+            for ind, err in self.errors.iteritems():
+                errs.append(err.msg_text)
+            raise EWSBaseErrorStr('\n'.join(errs))
+
+        self.items = []
+        for cxml in self.node.iter(QName_T('CalendarItem')):
+            self.items.append(CalendarItem(self, resp_node=cxml))
+
 ##
 # GetContacts
 ##
