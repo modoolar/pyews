@@ -33,6 +33,18 @@ class WellKnownFolderName:
     MsgFolderRoot = 'msgfolderroot'
 
 
+class BaseProperties:
+    @classmethod
+    def _props(cls):
+        return [i for i in cls.__dict__.keys() if i[:1] != '_']
+
+    @classmethod
+    def _props_values(cls):
+        return [
+            getattr(cls, i) for i in cls._props() if isinstance(i, basestring)
+        ]
+
+
 class DistinguishedFolderId:
 
     """
@@ -80,6 +92,55 @@ class ItemClass:
     DistList = 'IPM.DistList'
     Note = 'IPM.Note'
     Task = 'IPM.Task'
+
+
+class SensitivityType(BaseProperties):
+    """
+    https://msdn.microsoft.com/en-us/library/office/aa565687(v=exchg.140).aspx
+    """
+    Normal = 'Normal'
+    Personal = 'Personal'
+    Private = 'Private'
+    Confidential = 'Confidential'
+
+
+class ImportanceType(BaseProperties):
+    """
+    https://msdn.microsoft.com/en-us/library/office/aa563467(v=exchg.140).aspx
+    """
+    Low = 'Low'
+    Normal = 'Normal'
+    High = 'High'
+
+
+class LegacyFreeBusyStatusType(BaseProperties):
+    """
+    https://msdn.microsoft.com/en-us/library/office/aa566143(v=exchg.140).aspx
+    """
+    Free = 'Free'
+    Tentative = 'Tentative'
+    Busy = 'Busy'
+    OOF = 'OOF'
+    NoData = 'NoData'
+
+
+class CalendarItemTypeType(BaseProperties):
+    """
+    https://msdn.microsoft.com/en-us/library/office/aa494158(v=exchg.140).aspx
+    """
+    Single = 'Single'
+    Occurrence = 'Occurrence'
+    Except = 'Exception'  # because Exception is a Python keyword
+    RecurringMaster = 'RecurringMaster'
+
+
+class ConferenceTypeType(BaseProperties):
+    """
+    https://msdn.microsoft.com/en-us/library/office/aa563529(v=exchg.140).aspx
+    """
+    NetMeeting = '0'
+    NetShow = '1'
+    Chat = '2'
 
 
 class PhoneKey:

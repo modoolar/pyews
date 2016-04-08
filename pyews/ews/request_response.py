@@ -481,7 +481,6 @@ class FindCalendarItemsResponse(Response):
         # loops.
         for cxml in self.node.iter(QName_T('CalendarItem')):
             cal = CalendarItem(self, resp_node=cxml)
-            import pdb; pdb.set_trace()
             self.items.append(cal)
 
 ##

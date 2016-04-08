@@ -176,7 +176,7 @@ class ExchangeService(object):
         logging.info('pimdb_ex:FindCalendarItems() - '
                      'fetching items in folder %s...done',
                      folder.DisplayName)
-        import pdb; pdb.set_trace()
+
         if len(ret) > 0 and not ids_only:
             return self.GetCalendarItems([x.itemid for x in ret],
                                          eprops_xml=eprops_xml)

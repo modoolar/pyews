@@ -723,3 +723,44 @@ class Item(Field):
                 self.last_modified_time = LastModifiedTime(child.text)
             elif tag == 'DateTimeCreated':
                 self.created_time = DateTimeCreated(child.text)
+
+# <Item>
+#    <MimeContent/>
+#    <ItemId/>
+#    <ParentFolderId/>
+#    <ItemClass/>
+#    <Subject/>
+#    <Sensitivity/>
+#    <Body/>
+#    <Attachments/>
+#    <DateTimeReceived/>
+#    <Size/>
+#    <Categories/>
+#    <Importance/>
+#    <InReplyTo/>
+#    <IsSubmitted/>
+#    <IsDraft/>
+#    <IsFromMe/>
+#    <IsResend/>
+#    <IsUnmodified/>
+#    <InternetMessageHeaders/>
+#    <DateTimeSent/>
+#    <DateTimeCreated/>
+#    <ResponseObjects/>
+#    <ReminderDueBy/>
+#    <ReminderIsSet/>
+#    <ReminderMinutesBeforeStart/>
+#    <DisplayCc/>
+#    <DisplayTo/>
+#    <HasAttachments/>
+#    <ExtendedProperty/>
+#    <Culture/>
+#    <EffectiveRights/>
+#    <LastModifiedName/>
+#    <LastModifiedTime/>
+#    <IsAssociated/>
+#    <WebClientReadFormQueryString/>
+#    <WebClientEditFormQueryString/>
+#    <ConversationId/>
+#    <UniqueBody/>
+# </Item>
