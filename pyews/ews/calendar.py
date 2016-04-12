@@ -12,11 +12,15 @@ from pyews.soap import SoapClient, unQName, QName_T
 from pyews.utils import pretty_xml
 from pyews.ews import mapitags
 from pyews.ews.data import MapiPropertyTypeType, MapiPropertyTypeTypeInv
-from pyews.ews.data import (SensitivityType,
-                            ImportanceType,
-                            LegacyFreeBusyStatusType,
+from pyews.ews.data import (LegacyFreeBusyStatusType,
                             CalendarItemTypeType,
                             ConferenceTypeType,
+                            )
+from pyews.ews.item import (Sensitivity,
+                            Importance,
+                            ReminderIsSet,
+                            Subject,
+                            Body,
                             )
 from xml.sax.saxutils import escape
 from pyews.ews.contact import CField
@@ -50,27 +54,6 @@ class CalField(Field):
         return '<t:%s>%s</t:%s>' % (self.tag, escape(self.value), self.tag)
 
 
-class Subject(CalField):
-    def __init__(self, text=None):
-        CalField.__init__(self, 'Subject', text)
-
-
-class Sensitivity(CalField):
-    def __init__(self, text=None):
-        val_list = SensitivityType._props_values()
-        err = 'Sensitivity is not in the list %s' % val_list
-        assert (text is None or text in val_list), err
-        CalField.__init__(self, 'Sensitivity', text)
-
-
-class Importance(CalField):
-    def __init__(self, text=None):
-        val_list = ImportanceType._props_values()
-        err = 'Importance is not in the list %s' % val_list
-        assert (text is None or text in val_list), err
-        CalField.__init__(self, 'Importance', text)
-
-
 class LegacyFreeBusyStatus(CalField):
     def __init__(self, text=None):
         val_list = LegacyFreeBusyStatusType._props_values()
@@ -95,48 +78,31 @@ class ConferenceType(CalField):
         CalField.__init__(self, 'ConferenceType', text)
 
 
-class Body(CalField):
-    def __init__(self, type='HTML', text=None):
-        CalField.__init__(self, 'Body', text)
-        self.text_type = type
-
-
-class ReminderIsSet(CalField):
-    def __init__(self, text=None):
-        CalField.__init__(self, 'ReminderIsSet', text)
-
-
 class CalendarItem(Item):
     def __init__(self, service, parent_fid=None,
                  resp_node=None, mapped_data=None):
         Item.__init__(self, service, parent_fid, resp_node, tag='CalendarItem')
 
-        self.sensitivity = Sensitivity()
-        self.importance = Importance()
-        self.subject = Subject()
         self.legacy_free_busy_status = LegacyFreeBusyStatus()
         self.calendar_item_type = CalendarItemType()
         self.conference_type = ConferenceType()
-        self.body = Body()
-        self.is_reminder_set = ReminderIsSet()
 
-        self.tag_property_map = [
-            (self.sensitivity.tag, self.sensitivity),
-            (self.importance.tag, self.importance),
-            (self.subject.tag, self.subject),
+        self.tag_property_map.extend([
             (self.legacy_free_busy_status.tag, self.legacy_free_busy_status),
             (self.calendar_item_type.tag, self.calendar_item_type),
             (self.conference_type.tag, self.conference_type),
-            (self.body.tag, self.body),
-            (self.is_reminder_set.tag, self.is_reminder_set),
-        ]
+            ]
+        )
 
         self.mapping_dict_tag_obj = {x: y for x, y in self.tag_property_map}
 
         # Tags starting with 'Is' are considered as Boolean fields
         # for other fields that must be considered as Boolean ones,
         # add them in the list below
-        self.boolean_fields_tag = [self.is_reminder_set.tag]
+        self.boolean_fields_tag.extend(
+            [
+            ]
+        )
 
         if resp_node is not None:
             self._init_from_resp()
@@ -150,16 +116,7 @@ class CalendarItem(Item):
         for child in rnode:
             tag = unQName(child.tag)
             if tag in self.mapping_dict_tag_obj:
-                if tag == 'Body':
-                    # check text type (BodyType attribute on Body tag)
-                    attribs = child.attrib
-                    self.mapping_dict_tag_obj[tag].text_type = (
-                        attribs.get('BodyType', 'HTML')
-                    )
-                    setattr(self.mapping_dict_tag_obj[tag],
-                            'value',
-                            child.text)
-                elif tag in self.boolean_fields_tag or tag.startswith('Is'):
+                if tag in self.boolean_fields_tag or tag.startswith('Is'):
                     # boolean
                     setattr(self.mapping_dict_tag_obj[tag],
                             'value',

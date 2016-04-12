@@ -24,12 +24,15 @@ import pyews.soap as soap
 import pyews.utils as utils
 from pyews.ews import mapitags
 from pyews.ews.data import MapiPropertyTypeType, MapiPropertyTypeTypeInv
-
+from pyews.ews.data import (SensitivityType,
+                            ImportanceType,
+                            )
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
 import logging
 import pdb
 gnd = SoapClient.get_node_detail
+_logger = logging.getLogger(__name__)
 
 
 class ReadOnly:
@@ -539,9 +542,7 @@ class Categories(Field):
 
     def populate_from_node(self, node):
         for child in node:
-            categ = self.Category()
-            categ.value = child.text
-            self.entries.append(categ)
+            self.add(child.text)
 
     def already_exists(self, categ_str):
         for entry in self.entries:
@@ -558,6 +559,38 @@ class Categories(Field):
 
     def has_updates(self):
         return len(self.entries) > 0
+
+
+class Subject(Field):
+    def __init__(self, text=None):
+        Field.__init__(self, 'Subject', text)
+
+
+class Sensitivity(Field):
+    def __init__(self, text=None):
+        val_list = SensitivityType._props_values()
+        err = 'Sensitivity is not in the list %s' % val_list
+        assert (text is None or text in val_list), err
+        Field.__init__(self, 'Sensitivity', text)
+
+
+class Importance(Field):
+    def __init__(self, text=None):
+        val_list = ImportanceType._props_values()
+        err = 'Importance is not in the list %s' % val_list
+        assert (text is None or text in val_list), err
+        Field.__init__(self, 'Importance', text)
+
+
+class Body(Field):
+    def __init__(self, type='HTML', text=None):
+        Field.__init__(self, 'Body', text)
+        self.text_type = type
+
+
+class ReminderIsSet(Field):
+    def __init__(self, text=None):
+        Field.__init__(self, 'ReminderIsSet', text)
 
 
 class Item(Field):
@@ -584,7 +617,29 @@ class Item(Field):
         self.change_key = ChangeKey()
         self.created_time = DateTimeCreated()
         self.last_modified_time = None
+
         self.categories = Categories()
+        self.sensitivity = Sensitivity()
+        self.importance = Importance()
+        self.subject = Subject()
+        self.body = Body()
+        self.is_reminder_set = ReminderIsSet()
+
+        self.tag_property_map = [
+            (self.categories.tag, self.categories),
+            (self.sensitivity.tag, self.sensitivity),
+            (self.importance.tag, self.importance),
+            (self.subject.tag, self.subject),
+            (self.body.tag, self.body),
+            (self.is_reminder_set.tag, self.is_reminder_set),
+        ]
+
+        self.mapping_dict_tag_obj = {x: y for x, y in self.tag_property_map}
+
+        # Tags starting with 'Is' are considered as Boolean fields
+        # for other fields that must be considered as Boolean ones,
+        # add them in the list below
+        self.boolean_fields_tag = [self.is_reminder_set.tag]
 
         self.eprops = []
         self.eprops_tagged = {}
@@ -760,6 +815,33 @@ class Item(Field):
                 self.last_modified_time = LastModifiedTime(child.text)
             elif tag == 'DateTimeCreated':
                 self.created_time = DateTimeCreated(child.text)
+
+            elif tag in self.mapping_dict_tag_obj:
+                if tag == 'Body':
+                    # check text type (BodyType attribute on Body tag)
+                    attribs = child.attrib
+                    self.mapping_dict_tag_obj[tag].text_type = (
+                        attribs.get('BodyType', 'HTML')
+                    )
+                    setattr(self.mapping_dict_tag_obj[tag],
+                            'value',
+                            child.text)
+                elif tag == 'Categories':
+                    self.categories.add(child.text)
+                elif tag in self.boolean_fields_tag or tag.startswith('Is'):
+                    # boolean
+                    setattr(self.mapping_dict_tag_obj[tag],
+                            'value',
+                            child.text == 'true')
+                else:
+                    setattr(self.mapping_dict_tag_obj[tag],
+                            'value',
+                            child.text)
+            elif tag == 'ExtendedProperty':
+                self.add_extended_property(node=child)
+            else:
+                _logger.warning(
+                    'Trying to instanciate an unknown field %s' % tag)
 
 # <Item>
 #    <MimeContent/>
