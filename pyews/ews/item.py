@@ -249,7 +249,6 @@ class ExtendedProperty(Field):
         If node is not None, it should be a parsed XML element pointing to an
         Extended Property element
         """
-
         # This guy needs to be here as we have overriden the .value()
         self.val = self.Value()
 
@@ -323,12 +322,12 @@ class ExtendedProperty(Field):
 
         ef = self.efuri.write_to_xml()
         s += ef
-        s += '\n<t:Contact>'
+        s += '\n<t:Item>'
         s += '\n  <t:ExtendedProperty>'
         s += '\n      %s' % ef
         s += '\n      <t:Value>%s</t:Value>' % escape(str(self.value))
         s += '\n  </t:ExtendedProperty>'
-        s += '\n</t:Contact>'
+        s += '\n</t:Item>'
 
         return s
 
@@ -524,6 +523,43 @@ class LastModifiedTime(ReadOnly, ExtendedProperty):
         ExtendedProperty.__init__(self, node=node, ptag=ptag, ptype=ptype)
 
 
+class Categories(Field):
+    class Category(Field):
+        def __init__(self, text=None):
+            Field.__init__(self, 'String', text)
+
+        def __str__(self):
+            return 'Category %s' % (self.value)
+
+    def __init__(self, node=None):
+        Field.__init__(self, 'Categories')
+        self.children = self.entries = []
+        if node is not None:
+            self.populate_from_node(node)
+
+    def populate_from_node(self, node):
+        for child in node:
+            categ = self.Category()
+            categ.value = child.text
+            self.entries.append(categ)
+
+    def already_exists(self, categ_str):
+        for entry in self.entries:
+            if entry.value == categ_str:
+                return True
+        return False
+
+    def add(self, categ_str):
+        if categ_str is not None:
+            if not self.already_exists(categ_str):
+                categ = self.Category()
+                categ.value = categ_str
+                self.entries.append(categ)
+
+    def has_updates(self):
+        return len(self.entries) > 0
+
+
 class Item(Field):
 
     """
@@ -548,6 +584,7 @@ class Item(Field):
         self.change_key = ChangeKey()
         self.created_time = DateTimeCreated()
         self.last_modified_time = None
+        self.categories = Categories()
 
         self.eprops = []
         self.eprops_tagged = {}

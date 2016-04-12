@@ -21,7 +21,13 @@
 import logging
 import pdb
 
-from item import Item, Field, FieldURI, ExtendedProperty, LastModifiedTime
+from item import (Item,
+                  Field,
+                  FieldURI,
+                  ExtendedProperty,
+                  LastModifiedTime,
+                  Categories,
+                  )
 from pyews.soap import SoapClient, unQName, QName_T
 from pyews.utils import pretty_xml
 from pyews.ews import mapitags
@@ -402,43 +408,6 @@ class PostalAddresses(CField):
         return '\n'.join(ret)
 
 
-class Categories(CField):
-    class Category(CField):
-        def __init__(self, text=None):
-            CField.__init__(self, 'String', text)
-
-        def __str__(self):
-            return 'Category %s' % (self.value)
-
-    def __init__(self, node=None):
-        CField.__init__(self, 'Categories')
-        self.children = self.entries = []
-        if node is not None:
-            self.populate_from_node(node)
-
-    def populate_from_node(self, node):
-        for child in node:
-            categ = self.Category()
-            categ.value = child.text
-            self.entries.append(categ)
-
-    def already_exists(self, categ_str):
-        for entry in self.entries:
-            if entry.value == categ_str:
-                return True
-        return False
-
-    def add(self, categ_str):
-        if categ_str is not None:
-            if not self.already_exists(categ_str):
-                categ = self.Category()
-                categ.value = categ_str
-                self.entries.append(categ)
-
-    def has_updates(self):
-        return len(self.entries) > 0
-
-
 class EmailAddresses(CField):
 
     class Email(CField):
@@ -726,18 +695,39 @@ class BusinessHomePage(CField):
 ##
 
 
-class PersonalHomePage(ExtendedProperty):
+class ContactExtendedProperty(ExtendedProperty):
+    def __init__(self, node=None, dis_psetid=None, psetid=None,
+                 ptag=None, pname=None, pid=None, ptype=None):
+        ExtendedProperty.__init__(self, node=node, dis_psetid=dis_psetid,
+                                  psetid=psetid, ptag=ptag, pname=pname,
+                                  pid=pid, ptype=ptype)
+
+    def write_to_xml_update(self):
+        s = ''
+        ef = self.efuri.write_to_xml()
+        s += ef
+        s += '\n<t:Contact>'
+        s += '\n  <t:ExtendedProperty>'
+        s += '\n      %s' % ef
+        s += '\n      <t:Value>%s</t:Value>' % escape(str(self.value))
+        s += '\n  </t:ExtendedProperty>'
+        s += '\n</t:Contact>'
+
+        return s
+
+
+class PersonalHomePage(ContactExtendedProperty):
 
     def __init__(self, node=None, text=None):
         pid = mapitags.PROP_ID(mapitags.PR_PERSONAL_HOME_PAGE)
         ptype = mapitags.PROP_TYPE(mapitags.PR_PERSONAL_HOME_PAGE)
-        ExtendedProperty.__init__(self, node=node, ptag=pid,
-                                  ptype=MapiPropertyTypeType[ptype])
+        ContactExtendedProperty.__init__(self, node=node, ptag=pid,
+                                         ptype=MapiPropertyTypeType[ptype])
         self.val.value = text
 
     def write_to_xml(self):
         if self.val.value is not None:
-            return ExtendedProperty.write_to_xml(self)
+            return ContactExtendedProperty.write_to_xml(self)
         else:
             return ''
 
@@ -745,18 +735,18 @@ class PersonalHomePage(ExtendedProperty):
         return self.val.value
 
 
-class Gender(ExtendedProperty):
+class Gender(ContactExtendedProperty):
 
     def __init__(self, node=None, text=GenderType.Unspecified):
         ptag = mapitags.PROP_ID(mapitags.PR_GENDER)
         ptype = mapitags.PROP_TYPE(mapitags.PR_GENDER)
-        ExtendedProperty.__init__(self, node=node, ptag=ptag,
-                                  ptype=MapiPropertyTypeType[ptype])
+        ContactExtendedProperty.__init__(self, node=node, ptag=ptag,
+                                         ptype=MapiPropertyTypeType[ptype])
         self.val.value = str(text)
 
     def write_to_xml(self):
         if self.val.value is not None:
-            return ExtendedProperty.write_to_xml(self)
+            return ContactExtendedProperty.write_to_xml(self)
         else:
             return ''
 
@@ -783,7 +773,7 @@ class Contact(Item):
                  resp_node=None, mapped_data=None):
         Item.__init__(self, service, parent_fid, resp_node, tag='Contact')
 
-        self.categories = Categories()
+        # self.categories = Categories()
         self.file_as = FileAs()
         self.file_as_mapping = FileAsMapping()
         self.alias = Alias()
