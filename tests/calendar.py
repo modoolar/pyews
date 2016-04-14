@@ -57,6 +57,27 @@ def main():
     find_cals4 = ews.FindCalendarItemsByDate(cfs[0])
     assert len(cals) == len(find_cals4)
 
+    cal_id, cal_ck = test_create_calendar_item(ews, cfs[0].Id)
+
+
+def test_create_calendar_item(ews, fid):
+    cal = CalendarItem(ews, fid)
+
+    subject = "TEST from script"
+    start_date = "2016-04-14T13:00:00Z"
+    end_date = "2016-04-14T17:00:00Z"
+
+    cal.subject.value = subject
+    cal.start.value = start_date
+    cal.end.value = end_date
+
+
+    import pdb; pdb.set_trace()
+    Id, CK = ews.CreateItem(fid, cal)
+
+    # read created contact
+    # read_con = ews.GetItems([Id])
+    return Id, CK
 
 def bind():
     return Folder.bind(ews, WellKnownFolderName.MsgFolderRoot)

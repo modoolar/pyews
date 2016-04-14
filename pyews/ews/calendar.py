@@ -1039,6 +1039,18 @@ https://msdn.microsoft.com/en-us/library/office/aa564765(v=exchg.140).aspx
         _logger.info("CalendarItem.add_tagged_property")
         pass
 
+    def get_children(self):
+        # The order of these fields is critical. I know, it's crazy.
+        self.children = [
+            self.subject,
+            self.sensitivity,
+            self.body,
+            self.categories,
+            self.start,
+            self.end,
+        ]
+
+        return self.children
 # <CalendarItem>
 #    <MimeContent/>
 #    <ItemId/>

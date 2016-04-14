@@ -1,7 +1,11 @@
 {% extends "base_request.xml" %}
 {% autoescape None %}
 {% block body %}
+    {% if items[0].__class__.__name__ == 'CalendarItem' %}
+    <m:CreateItem SendMeetingInvitations="SendToNone">
+    {% else %}
     <m:CreateItem>
+    {% end %}
       <m:SavedItemFolderId>
         <t:FolderId Id="{{ folder_id }}"/>
       </m:SavedItemFolderId>
