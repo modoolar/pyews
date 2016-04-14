@@ -3,6 +3,9 @@
 # Created : Fri Mar 28 22:47:40 IST 2014
 ##
 # Copyright (C) 2014 Sriram Karra <karra.etc@gmail.com>
+#
+# Author: Damien Crier
+# Copyright 2016 Camptocamp SA
 ##
 # This file is part of pyews
 ##
@@ -24,7 +27,6 @@
 ##
 
 import mapitags
-from pyews.soap import SoapClient, SoapMessageError, QName_M
 
 # perhaps this is not required?
 
@@ -141,6 +143,66 @@ class ConferenceTypeType(BaseProperties):
     NetMeeting = '0'
     NetShow = '1'
     Chat = '2'
+
+
+class ResponseTypeType(BaseProperties):
+    """
+    https://msdn.microsoft.com/en-us/library/office/aa564248(v=exchg.140).aspx
+    """
+    Unknown = 'Unknown'
+    Organizer = 'Organizer'
+    Tentative = 'Tentative'
+    Accept = 'Accept'
+    Decline = 'Decline'
+    NoResponseReceived = 'NoResponseReceived'
+
+
+class DaysOfWeekBaseType(BaseProperties):
+    Sunday = 'Sunday'
+    Monday = 'Monday'
+    Tuesday = 'Tuesday'
+    Wednesday = 'Wednesday'
+    Thursday = 'Thursday'
+    Friday = 'Friday'
+    Saturday = 'Saturday'
+
+
+class DaysOfWeekType(DaysOfWeekBaseType):
+    """
+https://msdn.microsoft.com/en-us/library/office/ee332417%28v=exchg.140%29.aspx
+    """
+    Day = 'Day'
+    Weekday = 'Weekday'
+    WeekendDay = 'WeekendDay'
+
+
+class DayOfWeekIndexType(BaseProperties):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa581350(v=exchg.140).aspx
+    """
+    First = 'First'
+    Second = 'Second'
+    Third = 'Third'
+    Fourth = 'Fourth'
+    Last = 'Last'
+
+
+class MonthRecurrenceType(BaseProperties):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa565486%28v=exchg.140%29.aspx
+    """
+    January = 'January'
+    February = 'February'
+    March = 'March'
+    April = 'April'
+    May = 'May'
+    June = 'June'
+    July = 'July'
+    August = 'August'
+    September = 'September'
+    October = 'October'
+    November = 'November'
+    December = 'December'
 
 
 class PhoneKey:

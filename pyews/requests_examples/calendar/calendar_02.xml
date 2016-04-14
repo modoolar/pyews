@@ -1,0 +1,107 @@
+<t:CalendarItem>
+    <t:ItemId ChangeKey="DwAAABYAAAAAiVGA3mPUSayqvbyfsXO/AAAE9GxD" Id="AAAQAGMxb2Rvb0BoaWdoY28uZnIARgAAAAAAOO3rSaghRkyF3KhRUnXPkwcAAIlRgN5j1Emsqr28n7FzvwAAAHTcqAAAAIlRgN5j1Emsqr28n7FzvwAABPRsMQAA"/>
+    <t:ParentFolderId ChangeKey="AQAAAA==" Id="AAAQAGMxb2Rvb0BoaWdoY28uZnIALgAAAAAAOO3rSaghRkyF3KhRUnXPkwEAAIlRgN5j1Emsqr28n7FzvwAAAHTcqAAA"/>
+    <t:ItemClass>IPM.Appointment</t:ItemClass>
+    <t:Subject>dsdfsdfd</t:Subject>
+    <t:Sensitivity>Normal</t:Sensitivity>
+    <t:Body BodyType="HTML">&lt;html&gt;
+        &lt;head&gt;
+        &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot;&gt;
+        &lt;meta name=&quot;Generator&quot; content=&quot;Microsoft Exchange Server&quot;&gt;
+        &lt;!-- converted from rtf --&gt;
+        &lt;style&gt;&lt;!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left: #800000 2px solid; } --&gt;&lt;/style&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+        &lt;font face=&quot;Times New Roman&quot; size=&quot;3&quot;&gt;&lt;span style=&quot;font-size:12pt;&quot;&gt;&lt;a name=&quot;BM_BEGIN&quot;&gt;&lt;/a&gt;
+        &lt;div&gt;&lt;font face=&quot;Tahoma&quot; size=&quot;2&quot;&gt;&lt;span style=&quot;font-size:10pt;&quot;&gt;fdsfdfgfd&lt;br&gt;
+
+        &lt;/span&gt;&lt;/font&gt;&lt;/div&gt;
+        &lt;/span&gt;&lt;/font&gt;
+        &lt;/body&gt;
+        &lt;/html&gt;
+    </t:Body>
+    <t:DateTimeReceived>2016-04-13T05:39:21Z</t:DateTimeReceived>
+    <t:Size>2485</t:Size>
+    <t:Categories>
+        <t:String>Catégorie Rouge</t:String>
+    </t:Categories>
+    <t:Importance>Normal</t:Importance>
+    <t:IsSubmitted>false</t:IsSubmitted>
+    <t:IsDraft>false</t:IsDraft>
+    <t:IsFromMe>false</t:IsFromMe>
+    <t:IsResend>false</t:IsResend>
+    <t:IsUnmodified>false</t:IsUnmodified>
+    <t:DateTimeSent>2016-04-13T05:39:21Z</t:DateTimeSent>
+    <t:DateTimeCreated>2016-04-13T05:39:21Z</t:DateTimeCreated>
+    <t:ResponseObjects>
+        <t:ForwardItem/>
+    </t:ResponseObjects>
+    <t:ReminderDueBy>2016-04-15T08:30:00Z</t:ReminderDueBy>
+    <t:ReminderIsSet>true</t:ReminderIsSet>
+    <t:ReminderMinutesBeforeStart>15</t:ReminderMinutesBeforeStart>
+    <t:DisplayCc/>
+    <t:DisplayTo/>
+    <t:HasAttachments>false</t:HasAttachments>
+    <t:Culture>fr-FR</t:Culture>
+    <t:Start>2016-04-08T08:30:00Z</t:Start>
+    <t:End>2016-04-08T09:30:00Z</t:End>
+    <t:IsAllDayEvent>false</t:IsAllDayEvent>
+    <t:LegacyFreeBusyStatus>Busy</t:LegacyFreeBusyStatus>
+    <t:Location>fsdfsdfds</t:Location>
+    <t:IsMeeting>false</t:IsMeeting>
+    <t:IsCancelled>false</t:IsCancelled>
+    <t:IsRecurring>false</t:IsRecurring>
+    <t:MeetingRequestWasSent>false</t:MeetingRequestWasSent>
+    <t:IsResponseRequested>true</t:IsResponseRequested>
+    <t:CalendarItemType>RecurringMaster</t:CalendarItemType>
+    <t:MyResponseType>Organizer</t:MyResponseType>
+    <t:Organizer>
+        <t:Mailbox>
+            <t:Name>Client 1 Odoo</t:Name>
+            <t:EmailAddress>c1odoo@highco.fr</t:EmailAddress>
+            <t:RoutingType>SMTP</t:RoutingType>
+        </t:Mailbox>
+    </t:Organizer>
+    <t:ConflictingMeetingCount>0</t:ConflictingMeetingCount>
+    <t:AdjacentMeetingCount>0</t:AdjacentMeetingCount>
+    <t:Duration>PT1H</t:Duration>
+    <t:TimeZone>(UTC+01:00) Bruxelles, Copenhague, Madrid, Paris</t:TimeZone>
+    <t:AppointmentSequenceNumber>0</t:AppointmentSequenceNumber>
+    <t:AppointmentState>0</t:AppointmentState>
+    <t:Recurrence>
+        <t:WeeklyRecurrence>
+            <t:Interval>1</t:Interval>
+            <t:DaysOfWeek>Friday</t:DaysOfWeek>
+        </t:WeeklyRecurrence>
+        <t:NoEndRecurrence>
+            <t:StartDate>2016-04-08+02:00</t:StartDate>
+        </t:NoEndRecurrence>
+    </t:Recurrence>
+    <t:FirstOccurrence>
+        <t:ItemId ChangeKey="DwAAABYAAAAAiVGA3mPUSayqvbyfsXO/AAAE9GxD" Id="AAAQAGMxb2Rvb0BoaWdoY28uZnIBUQAICNNfQLpywABGAAAAADjt60moIUZMhdyoUVJ1z5MHAACJUYDeY9RJrKq9vJ+xc78AAAB03KgAAACJUYDeY9RJrKq9vJ+xc78AAAT0bDEAABA="/>
+        <t:Start>2016-04-08T08:30:00Z</t:Start>
+        <t:End>2016-04-08T09:30:00Z</t:End>
+        <t:OriginalStart>2016-04-08T08:30:00Z</t:OriginalStart>
+    </t:FirstOccurrence>
+    <t:MeetingTimeZone TimeZoneName="Romance Standard Time">
+        <t:BaseOffset>-PT60M</t:BaseOffset>
+        <t:Standard TimeZoneName="Standard">
+            <t:Offset>PT0M</t:Offset>
+            <t:RelativeYearlyRecurrence>
+                <t:DaysOfWeek>Sunday</t:DaysOfWeek>
+                <t:DayOfWeekIndex>Last</t:DayOfWeekIndex>
+                <t:Month>October</t:Month>
+            </t:RelativeYearlyRecurrence>
+            <t:Time>03:00:00</t:Time>
+        </t:Standard>
+        <t:Daylight TimeZoneName="Daylight">
+            <t:Offset>-PT60M</t:Offset>
+            <t:RelativeYearlyRecurrence>
+                <t:DaysOfWeek>Sunday</t:DaysOfWeek>
+                <t:DayOfWeekIndex>Last</t:DayOfWeekIndex>
+                <t:Month>March</t:Month>
+            </t:RelativeYearlyRecurrence>
+            <t:Time>02:00:00</t:Time>
+        </t:Daylight>
+    </t:MeetingTimeZone>
+</t:CalendarItem>

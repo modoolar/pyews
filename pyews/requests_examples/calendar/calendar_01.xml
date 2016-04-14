@@ -1,0 +1,80 @@
+<t:CalendarItem>
+    <t:ItemId ChangeKey="DwAAABYAAAAAiVGA3mPUSayqvbyfsXO/AAAE9G5T" Id="AAAQAGMxb2Rvb0BoaWdoY28uZnIARgAAAAAAOO3rSaghRkyF3KhRUnXPkwcAAIlRgN5j1Emsqr28n7FzvwAAAHTcqAAAAIlRgN5j1Emsqr28n7FzvwAABPRsMgAA"/>
+    <t:ParentFolderId ChangeKey="AQAAAA==" Id="AAAQAGMxb2Rvb0BoaWdoY28uZnIALgAAAAAAOO3rSaghRkyF3KhRUnXPkwEAAIlRgN5j1Emsqr28n7FzvwAAAHTcqAAA"/>
+    <t:ItemClass>IPM.Appointment</t:ItemClass>
+    <t:Subject>chgfhdfg</t:Subject>
+    <t:Sensitivity>Normal</t:Sensitivity>
+    <t:Body BodyType="HTML">&lt;html&gt;
+        &lt;head&gt;
+        &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot;&gt;
+        &lt;meta name=&quot;Generator&quot; content=&quot;Microsoft Exchange Server&quot;&gt;
+        &lt;!-- converted from rtf --&gt;
+        &lt;style&gt;&lt;!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left: #800000 2px solid; } --&gt;&lt;/style&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+        &lt;font face=&quot;Times New Roman&quot; size=&quot;3&quot;&gt;&lt;span style=&quot;font-size:12pt;&quot;&gt;&lt;a name=&quot;BM_BEGIN&quot;&gt;&lt;/a&gt;
+        &lt;div&gt;&lt;font face=&quot;Tahoma&quot; size=&quot;2&quot;&gt;&lt;span style=&quot;font-size:10pt;&quot;&gt;fdshgfdsgsdf&lt;br&gt;
+
+        &lt;/span&gt;&lt;/font&gt;&lt;/div&gt;
+        &lt;/span&gt;&lt;/font&gt;
+        &lt;/body&gt;
+        &lt;/html&gt;
+    </t:Body>
+    <t:DateTimeReceived>2016-04-13T05:42:26Z</t:DateTimeReceived>
+    <t:Size>2290</t:Size>
+    <t:Importance>Low</t:Importance>
+    <t:IsSubmitted>false</t:IsSubmitted>
+    <t:IsDraft>false</t:IsDraft>
+    <t:IsFromMe>false</t:IsFromMe>
+    <t:IsResend>false</t:IsResend>
+    <t:IsUnmodified>false</t:IsUnmodified>
+    <t:DateTimeSent>2016-04-13T05:42:26Z</t:DateTimeSent>
+    <t:DateTimeCreated>2016-04-13T05:42:25Z</t:DateTimeCreated>
+    <t:ResponseObjects>
+        <t:CancelCalendarItem/>
+        <t:ForwardItem/>
+    </t:ResponseObjects>
+    <t:ReminderDueBy>2016-04-08T10:30:00Z</t:ReminderDueBy>
+    <t:ReminderIsSet>true</t:ReminderIsSet>
+    <t:ReminderMinutesBeforeStart>15</t:ReminderMinutesBeforeStart>
+    <t:DisplayCc/>
+    <t:DisplayTo>toot@tooto.com</t:DisplayTo>
+    <t:HasAttachments>false</t:HasAttachments>
+    <t:Culture>fr-FR</t:Culture>
+    <t:Start>2016-04-08T10:30:00Z</t:Start>
+    <t:End>2016-04-08T11:30:00Z</t:End>
+    <t:IsAllDayEvent>false</t:IsAllDayEvent>
+    <t:LegacyFreeBusyStatus>Free</t:LegacyFreeBusyStatus>
+    <t:Location>hjgdgfsdg</t:Location>
+    <t:When>vendredi 8 avril 2016 12:30-13:30.</t:When>
+    <t:IsMeeting>true</t:IsMeeting>
+    <t:IsCancelled>false</t:IsCancelled>
+    <t:IsRecurring>false</t:IsRecurring>
+    <t:MeetingRequestWasSent>true</t:MeetingRequestWasSent>
+    <t:IsResponseRequested>true</t:IsResponseRequested>
+    <t:CalendarItemType>Single</t:CalendarItemType>
+    <t:MyResponseType>Organizer</t:MyResponseType>
+    <t:Organizer>
+        <t:Mailbox>
+            <t:Name>Client 1 Odoo</t:Name>
+            <t:EmailAddress>c1odoo@highco.fr</t:EmailAddress>
+            <t:RoutingType>SMTP</t:RoutingType>
+        </t:Mailbox>
+    </t:Organizer>
+    <t:RequiredAttendees>
+        <t:Attendee>
+            <t:Mailbox>
+                <t:Name>toot@tooto.com</t:Name>
+                <t:EmailAddress>toot@tooto.com</t:EmailAddress>
+                <t:RoutingType>SMTP</t:RoutingType>
+            </t:Mailbox>
+            <t:ResponseType>Unknown</t:ResponseType>
+        </t:Attendee>
+    </t:RequiredAttendees>
+    <t:ConflictingMeetingCount>0</t:ConflictingMeetingCount>
+    <t:AdjacentMeetingCount>0</t:AdjacentMeetingCount>
+    <t:Duration>PT1H</t:Duration>
+    <t:TimeZone>(UTC+01:00) Bruxelles, Copenhague, Madrid, Paris</t:TimeZone>
+    <t:AppointmentSequenceNumber>0</t:AppointmentSequenceNumber>
+    <t:AppointmentState>1</t:AppointmentState>
+</t:CalendarItem>

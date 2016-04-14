@@ -96,7 +96,7 @@ class SoapClient(object):
                               headers={'Content-Type': 'text/xml; '
                                                        'charset=utf-8',
                                        "Accept": "text/xml"},
-                              verify=self.cert)
+                              verify=False)
         except requests.exceptions.ConnectionError as e:
             raise SoapConnectionError(e)
 

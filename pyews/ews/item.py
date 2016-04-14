@@ -31,8 +31,10 @@ import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
 import logging
 import pdb
+
 gnd = SoapClient.get_node_detail
 _logger = logging.getLogger(__name__)
+EXCHANGE_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
 class ReadOnly:
@@ -562,11 +564,17 @@ class Categories(Field):
 
 
 class Subject(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa565100(v=exchg.140).aspx
+    """
     def __init__(self, text=None):
         Field.__init__(self, 'Subject', text)
 
 
 class Sensitivity(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa565687(v=exchg.140).aspx
+    """
     def __init__(self, text=None):
         val_list = SensitivityType._props_values()
         err = 'Sensitivity is not in the list %s' % val_list
@@ -575,6 +583,9 @@ class Sensitivity(Field):
 
 
 class Importance(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa563467(v=exchg.140).aspx
+    """
     def __init__(self, text=None):
         val_list = ImportanceType._props_values()
         err = 'Importance is not in the list %s' % val_list
@@ -583,12 +594,18 @@ class Importance(Field):
 
 
 class Body(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa581015(v=exchg.140).aspx
+    """
     def __init__(self, type='HTML', text=None):
         Field.__init__(self, 'Body', text)
         self.text_type = type
 
 
 class ReminderIsSet(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa566410%28v=exchg.140%29.aspx
+    """
     def __init__(self, text=None):
         Field.__init__(self, 'ReminderIsSet', text)
 
@@ -602,10 +619,12 @@ class Item(Field):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, service, parent_fid=None, resp_node=None, tag='Item'):
+    def __init__(self, service, parent_fid=None, resp_node=None, tag='Item',
+                 additional_properties=None,
+                 additional_boolean_fields_tag=None):
         Field.__init__(self, tag=tag)
 
-        self.service = service                       # Exchange service object
+        self.service = service  # Exchange service object
         self.resp_node = resp_node
 
         self.parent_fid = ParentFolderId(parent_fid)
@@ -616,7 +635,7 @@ class Item(Field):
         self.item_class = ItemClass()
         self.change_key = ChangeKey()
         self.created_time = DateTimeCreated()
-        self.last_modified_time = None
+        self.last_modified_time = LastModifiedTime()
 
         self.categories = Categories()
         self.sensitivity = Sensitivity()
@@ -626,6 +645,11 @@ class Item(Field):
         self.is_reminder_set = ReminderIsSet()
 
         self.tag_property_map = [
+            (self.itemid.tag, self.itemid),
+            (self.item_class.tag, self.item_class),
+            (self.parent_fid.tag, self.parent_fid),
+            (self.created_time.tag, self.created_time),
+            (self.last_modified_time.tag, self.last_modified_time),
             (self.categories.tag, self.categories),
             (self.sensitivity.tag, self.sensitivity),
             (self.importance.tag, self.importance),
@@ -633,13 +657,17 @@ class Item(Field):
             (self.body.tag, self.body),
             (self.is_reminder_set.tag, self.is_reminder_set),
         ]
+        if additional_properties is not None:
+            self.tag_property_map += additional_properties
 
-        self.mapping_dict_tag_obj = {x: y for x, y in self.tag_property_map}
+        self.mapping_dict_tag_obj = dict(self.tag_property_map)
 
         # Tags starting with 'Is' are considered as Boolean fields
         # for other fields that must be considered as Boolean ones,
         # add them in the list below
         self.boolean_fields_tag = [self.is_reminder_set.tag]
+        if additional_boolean_fields_tag is not None:
+            self.boolean_fields_tag += additional_boolean_fields_tag
 
         self.eprops = []
         self.eprops_tagged = {}
@@ -796,47 +824,49 @@ class Item(Field):
         r = elem.find(node)
         return r.value if r else None
 
+    def _process_tag(self, child, tag):
+        if tag == 'ItemId':
+            self.itemid.set(child.attrib['Id'])
+            self.change_key.set(child.attrib['ChangeKey'])
+        elif tag == 'ParentFolderId':
+            self.parent_fid = ParentFolderId(child.attrib['Id'])
+            self.parent_fck = ParentFolderChangeKey(
+                child.attrib['ChangeKey'])
+        elif tag == 'Body':
+            # check text type (BodyType attribute on Body tag)
+            attribs = child.attrib
+            self.mapping_dict_tag_obj[tag].text_type = (
+                attribs.get('BodyType', 'HTML')
+            )
+            setattr(self.mapping_dict_tag_obj[tag],
+                    'value',
+                    child.text)
+        elif tag == 'Categories':
+            self.categories.add(child.text)
+        elif tag in self.boolean_fields_tag or tag.startswith('Is'):
+            # boolean
+            setattr(self.mapping_dict_tag_obj[tag],
+                    'value',
+                    child.text == 'true')
+        else:
+            return False
+        return True
+
     def _init_base_fields_from_resp(self, rnode):
         """Return a reference to the parsed Element object for response after
         snarfing all the common fields."""
 
         for child in rnode:
             tag = unQName(child.tag)
-            if tag == 'ItemId':
-                self.itemid.set(child.attrib['Id'])
-                self.change_key.set(child.attrib['ChangeKey'])
-            elif tag == 'ParentFolderId':
-                self.parent_fid = ParentFolderId(child.attrib['Id'])
-                self.parent_fck = ParentFolderChangeKey(
-                    child.attrib['ChangeKey'])
-            elif tag == 'ItemClass':
-                self.item_class = ItemClass(child.text)
-            elif tag == 'LastModifiedTime':
-                self.last_modified_time = LastModifiedTime(child.text)
-            elif tag == 'DateTimeCreated':
-                self.created_time = DateTimeCreated(child.text)
+            # if tag == 'ItemId':
+            #     import pdb; pdb.set_trace()
+            if tag in self.mapping_dict_tag_obj:
+                res = self._process_tag(child, tag)
+                if not res:
+                    setattr(self.mapping_dict_tag_obj[tag],
+                            'value',
+                            child.text)
 
-            elif tag in self.mapping_dict_tag_obj:
-                if tag == 'Body':
-                    # check text type (BodyType attribute on Body tag)
-                    attribs = child.attrib
-                    self.mapping_dict_tag_obj[tag].text_type = (
-                        attribs.get('BodyType', 'HTML')
-                    )
-                    setattr(self.mapping_dict_tag_obj[tag],
-                            'value',
-                            child.text)
-                elif tag == 'Categories':
-                    self.categories.add(child.text)
-                elif tag in self.boolean_fields_tag or tag.startswith('Is'):
-                    # boolean
-                    setattr(self.mapping_dict_tag_obj[tag],
-                            'value',
-                            child.text == 'true')
-                else:
-                    setattr(self.mapping_dict_tag_obj[tag],
-                            'value',
-                            child.text)
             elif tag == 'ExtendedProperty':
                 self.add_extended_property(node=child)
             else:
