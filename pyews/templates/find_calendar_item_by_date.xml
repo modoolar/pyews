@@ -1,0 +1,49 @@
+{% extends "base_request.xml" %}
+
+{% block body %}
+<m:FindItem Traversal="Shallow">
+    <m:ItemShape>
+        <t:BaseShape>IdOnly</t:BaseShape>
+        <t:AdditionalProperties>
+            <t:FieldURI FieldURI="calendar:Start"/>
+            <t:FieldURI FieldURI="calendar:End"/>
+            <t:FieldURI FieldURI="item:Subject"/>
+        </t:AdditionalProperties>
+    </m:ItemShape>
+
+    <m:IndexedPageItemView
+        MaxEntriesReturned="{{ batch_size }}"
+        Offset="{{ offset }}"
+        BasePoint="Beginning" />
+    <m:Restriction>
+        {% if start_date and end_date %}
+            <t:And>
+        {% end%}
+
+        {% if start_date %}
+            <t:IsGreaterThanOrEqualTo>
+                <t:FieldURI FieldURI="calendar:Start"/>
+                <t:FieldURIOrConstant>
+                    <t:Constant Value="{{ start_date }}" />
+                </t:FieldURIOrConstant>
+            </t:IsGreaterThanOrEqualTo>
+        {% end %}
+        {% if end_date %}
+            <t:IsLessThanOrEqualTo>
+                <t:FieldURI FieldURI="calendar:End"/>
+                <t:FieldURIOrConstant>
+                    <t:Constant Value="{{ end_date }}" />
+                </t:FieldURIOrConstant>
+           </t:IsLessThanOrEqualTo>
+        {% end %}
+
+        {% if start_date and end_date %}
+            </t:And>
+        {% end%}
+    </m:Restriction>
+
+    <m:ParentFolderIds>
+        <t:FolderId Id="{{ folder_id }} " />
+    </m:ParentFolderIds>
+</m:FindItem>
+{% end %}

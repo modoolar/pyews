@@ -45,8 +45,17 @@ def main():
     root = bind()
     cfs = root.FindFolders(types=FolderClass.Calendars)
     cals = ews.FindCalendarItems(cfs[0])
-    import pdb; pdb.set_trace()
-
+    start_date = '2016-04-06T00:00:00Z'
+    end_date = '2016-04-08T00:00:00Z'
+    find_cals = ews.FindCalendarItemsByBothDate(cfs[0],
+                                                start_date=start_date,
+                                                end_date=end_date)
+    find_cals2 = ews.FindCalendarItemsByDate(cfs[0],
+                                             start=end_date)
+    find_cals3 = ews.FindCalendarItemsByDate(cfs[0],
+                                             end=start_date)
+    find_cals4 = ews.FindCalendarItemsByDate(cfs[0])
+    assert len(cals) == len(find_cals4)
 
 
 def bind():

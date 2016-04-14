@@ -49,6 +49,10 @@ from ews.request_response import (FindCalendarItemsRequest,
                                   FindCalendarItemsResponse)
 from ews.request_response import (GetCalendarItemsRequest,
                                   GetCalendarItemsResponse)
+from ews.request_response import (FindCalendarItemsRequestBothDate,
+                                  FindCalendarItemsResponseBothDate)
+from ews.request_response import (FindCalendarItemsRequestDate,
+                                  FindCalendarItemsResponseDate)
 
 from tornado import template
 from soap import SoapClient, SoapMessageError, QName_T
@@ -145,6 +149,71 @@ class ExchangeService(object):
             raise EWSMessageError(e.resp_code, e.xml_resp, e.node)
 
         return resp
+
+    def FindCalendarItemsByBothDate(self, folder, start_date, end_date,
+                                    eprops_xml=[], ids_only=False):
+        """
+
+        """
+        req = FindCalendarItemsRequestBothDate(self, folder_id=folder.Id,
+                                               start_date=start_date,
+                                               end_date=end_date)
+        ret = []
+        resp = req.execute()
+        shells = resp.items
+        if shells is not None and len(shells) > 0:
+            ret += shells
+        if len(ret) > 0 and not ids_only:
+            return self.GetCalendarItems([x.itemid for x in ret],
+                                         eprops_xml=eprops_xml)
+        else:
+            return ret
+
+    def FindCalendarItemsByDate(self, folder, start=None, end=None,
+                                eprops_xml=[], ids_only=False):
+        """
+
+        """
+        req = False
+        if start is None and end is None:
+            return self.FindCalendarItems(folder, eprops_xml=eprops_xml,
+                                          ids_only=ids_only)
+        elif start and end:
+            return self.FindCalendarItemsByBothDate(folder=folder,
+                                                    start_date=start,
+                                                    end_date=end,
+                                                    eprops_xml=eprops_xml,
+                                                    ids_only=ids_only)
+        else:
+            # Either start or end is not None
+            i = 0
+            ret = []
+            while True:
+                req = FindCalendarItemsRequestDate(
+                    self,
+                    batch_size=self.batch_size(),
+                    offset=i,
+                    folder_id=folder.Id,
+                    start_date=start,
+                    end_date=end
+                )
+                resp = req.execute()
+                shells = resp.items
+                if shells is not None and len(shells) > 0:
+                    ret += shells
+
+                if resp.includes_last:
+                    break
+
+                i += self.batch_size()
+                # just a safety net to avoid inifinite loops
+                if i >= folder.TotalCount:
+                    break
+            if len(ret) > 0 and not ids_only:
+                return self.GetCalendarItems([x.itemid for x in ret],
+                                             eprops_xml=eprops_xml)
+            else:
+                return ret
 
     def FindCalendarItems(self, folder, eprops_xml=[], ids_only=False):
         """

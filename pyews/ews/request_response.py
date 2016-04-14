@@ -443,6 +443,80 @@ class FindItemsResponse(Response):
             self.items.append(Contact(self, resp_node=cxml))
 
 
+class FindCalendarItemsRequestBothDate(Request):
+
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_FIND_CAL_ITEM_BOTH_DATE)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = FindCalendarItemsResponseBothDate(self, self.resp_node)
+
+        return self.resp_obj
+
+
+class FindCalendarItemsResponseBothDate(Response):
+
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+        self.snarf_includes_last()
+        self.parse_for_errors(QName_M('FindItemResponseMessage'))
+
+        self.items = []
+        # FIXME: As we support additional item types we will add more such
+        # loops.
+        for cxml in self.node.iter(QName_T('CalendarItem')):
+            cal = CalendarItem(self, resp_node=cxml)
+            self.items.append(cal)
+
+
+class FindCalendarItemsRequestDate(Request):
+
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_FIND_CAL_ITEM_DATE)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = FindCalendarItemsResponseDate(self, self.resp_node)
+
+        return self.resp_obj
+
+
+class FindCalendarItemsResponseDate(Response):
+
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+        self.snarf_includes_last()
+        self.parse_for_errors(QName_M('FindItemResponseMessage'))
+
+        self.items = []
+        # FIXME: As we support additional item types we will add more such
+        # loops.
+        for cxml in self.node.iter(QName_T('CalendarItem')):
+            cal = CalendarItem(self, resp_node=cxml)
+            self.items.append(cal)
+
+
 class FindCalendarItemsRequest(Request):
 
     def __init__(self, ews, **kwargs):
