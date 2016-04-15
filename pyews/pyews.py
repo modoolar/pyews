@@ -445,6 +445,31 @@ class ExchangeService(object):
 
         return Id, CK
 
+    def CreateCalendarItem(self,
+                           folder_id,
+                           item,
+                           send_meeting_invitations="SendToNone"):
+        logging.info('pimdb_ex:CreateCalendarItem() - creating one item....')
+        req = CreateItemsRequest(
+            self,
+            folder_id=folder_id,
+            items=[item],
+            send_meeting_invitations=send_meeting_invitations
+        )
+
+        resp = req.execute()
+
+        logging.info('pimdb_ex:CreateCalendarItem() - creating items....done')
+        resp_dict = resp.get_itemids()
+        # as we only gave one item to create, we can use [0]
+        Id = resp_dict.keys()[0]
+        CK = resp_dict[Id]
+        logging.info('pimdb_ex:CreateCalendarItem() '
+                     '- RETURN VALUES: %s %s' % (Id, CK))
+
+        return Id, CK
+
+
     def DeleteItems(self, itemids):
         """Delete items in the exchange store."""
 

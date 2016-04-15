@@ -64,7 +64,7 @@ https://msdn.microsoft.com/en-us/library/office/aa566143(v=exchg.140).aspx
         CalField.__init__(self, 'LegacyFreeBusyStatus', text)
 
 
-class CalendarItemType(CalField):
+class CalendarItemType(ReadOnly, CalField):
     """
 https://msdn.microsoft.com/en-us/library/office/aa494158(v=exchg.140).aspx
     """
@@ -291,7 +291,7 @@ https://msdn.microsoft.com/en-us/library/office/aa565036(v=exchg.140).aspx
         #     self.populate_from_node(node)
 
     def get_children(self):
-        return [self.name, self.email_address, self.routing_type]
+        return [self.email_address, self.routing_type]
 
     def populate_from_node(self, node):
         for child in node:
@@ -331,6 +331,11 @@ https://msdn.microsoft.com/en-us/library/office/aa580339%28v=exchg.140%29.aspx
         self.mailbox = Mailbox()
         self.response_type = ResponseType()
         self.last_response_time = LastResponseTime()
+
+        self.children = [self.mailbox,
+                         self.response_type,
+                         self.last_response_time
+                         ]
 
         self.tag_field_mapping = {
             'Mailbox': 'mailbox',
@@ -595,6 +600,8 @@ https://msdn.microsoft.com/en-us/library/office/bb204113(v=exchg.140).aspx
         self.day_of_week_index = DayOfWeekIndex()
         self.month = MonthRecurrence()
 
+        self.children = [self.days_of_week, self.day_of_week_index, self.month]
+
         self.tag_field_mapping = {
             'DaysOfWeek': 'days_of_week',
             'DayOfWeekIndex': 'day_of_week_index',
@@ -616,6 +623,8 @@ https://msdn.microsoft.com/en-us/library/office/aa564242(v=exchg.140).aspx
         self.day_of_month = DayOfMonth()
         self.month = MonthRecurrence()
 
+        self.children = [self.day_of_month, self.month]
+
         self.tag_field_mapping = {
             'DayOfMonth': 'day_of_month',
             'Month': 'month',
@@ -635,7 +644,11 @@ https://msdn.microsoft.com/en-us/library/office/aa564558(v=exchg.140).aspx
         CalField.__init__(self, 'RelativeMonthlyRecurrence')
         self.days_of_week = DaysOfWeek()
         self.day_of_week_index = DayOfWeekIndex()
-        self.inteval = Interval()
+        self.interval = Interval()
+
+        self.children = [self.interval,
+                         self.days_of_week,
+                         self.day_of_week_index]
 
         self.tag_field_mapping = {
             'DaysOfWeek': 'days_of_week',
@@ -658,6 +671,8 @@ https://msdn.microsoft.com/en-us/library/office/aa493844(v=exchg.140).aspx
         self.day_of_month = DayOfMonth()
         self.interval = Interval()
 
+        self.children = [self.interval, self.day_of_month]
+
         self.tag_field_mapping = {
             'DayOfMonth': 'day_of_month',
             'Interval': 'interval',
@@ -679,6 +694,10 @@ https://msdn.microsoft.com/en-us/library/office/aa563500(v=exchg.140).aspx
         self.first_day_of_week = FirstDayOfWeek()
         self.interval = Interval()
 
+        self.children = [self.interval,
+                         self.days_of_week,
+                         self.first_day_of_week]
+
         self.tag_field_mapping = {
             'DaysOfWeek': 'days_of_week',
             'FirstDayOfWeek': 'first_day_of_week',
@@ -698,6 +717,8 @@ https://msdn.microsoft.com/en-us/library/office/aa563228(v=exchg.140).aspx
     def __init__(self, node=None):
         CalField.__init__(self, 'DailyRecurrence')
         self.interval = Interval()
+
+        self.children = [self.interval]
 
         self.tag_field_mapping = {
             'Interval': 'interval',
@@ -753,6 +774,8 @@ https://msdn.microsoft.com/en-us/library/office/aa564699%28v=exchg.140%29.aspx
         CalField.__init__(self, 'NoEndRecurrence')
         self.start_date = StartDateRecurrence()
 
+        self.children = [self.start_date]
+
         self.tag_field_mapping = {
             'StartDate': 'start_date',
         }
@@ -771,6 +794,8 @@ https://msdn.microsoft.com/en-us/library/office/aa564536%28v=exchg.140%29.aspx
         CalField.__init__(self, 'EndDateRecurrence')
         self.start_date = StartDateRecurrence()
         self.end_date = EndDateRecurrence()
+
+        self.children = [self.start_date, self.end_date]
 
         self.tag_field_mapping = {
             'StartDate': 'start_date',
@@ -791,6 +816,8 @@ https://msdn.microsoft.com/en-us/library/office/aa580960%28v=exchg.140%29.aspx
         CalField.__init__(self, 'NumberedRecurrence')
         self.start_date = StartDateRecurrence()
         self.nb_occurrences = NumberOfOccurrences()
+
+        self.children = [self.start_date, self.nb_occurrences]
 
         self.tag_field_mapping = {
             'StartDate': 'start_date',
@@ -821,6 +848,18 @@ https://msdn.microsoft.com/en-us/library/office/aa580471%28v=exchg.140%29.aspx
         self.end_date_rec = EndRecurrence()
         self.numbered_rec = NumberedRecurrence()
 
+        self.children = [
+            self.rel_year_rec,
+            self.abs_year_rec,
+            self.rel_month_rec,
+            self.abs_month_rec,
+            self.week_rec,
+            self.day_rec,
+            self.no_end_rec,
+            self.end_date_rec,
+            self.numbered_rec,
+        ]
+
         self.tag_field_mapping = {
             'RelativeYearlyRecurrence': 'rel_year_rec',
             'AbsoluteYearlyRecurrence': 'abs_year_rec',
@@ -832,6 +871,88 @@ https://msdn.microsoft.com/en-us/library/office/aa580471%28v=exchg.140%29.aspx
             'EndDateRecurrence': 'end_date_rec',
             'NumberedRecurrence': 'numbered_rec',
         }
+
+    def get_children(self):
+        """
+        """
+        return self._check_instance_pattern()
+
+    def _check_instance_pattern(self):
+        """
+        check that instance properties filled
+        match a valid pattern for Exchange
+        """
+        rec_type = self._check_recurrence_type()
+        end_type = self._check_end_type()
+
+        return getattr(self, rec_type), getattr(self, end_type)
+
+    def _check_recurrence_type(self):
+        """
+        check only one filled over
+            'RelativeYearlyRecurrence'
+            'AbsoluteYearlyRecurrence'
+            'RelativeMonthlyRecurrence'
+            'AbsoluteMonthlyRecurrence'
+            'WeeklyRecurrence'
+            'DailyRecurrence'
+        """
+        msg = 'Recurrence end type error.\n'
+        msg += 'You have to assign exactly one of the following properties:\n'
+        msg += 'RelativeYearlyRecurrence, AbsoluteYearlyRecurrence, '
+        msg += 'RelativeMonthlyRecurrence, AbsoluteMonthlyRecurrence, '
+        msg += 'WeeklyRecurrence, DailyRecurrence'
+
+        aaa = [(x, getattr(getattr(self, x), y).value) for x, y in (
+            ('rel_year_rec', 'month'),
+            ('abs_year_rec', 'month'),
+            ('rel_month_rec', 'interval'),
+            ('abs_month_rec', 'interval'),
+            ('week_rec', 'interval'),
+            ('day_rec', 'interval'))
+        ]
+
+        none_nb = [x[1] for x in aaa].count(None)
+        if none_nb < 1:
+            # not OK
+            raise ValueError(msg)
+        elif none_nb == 5:
+            # OK
+            # [0] because in this case, there will be always one
+            rec_type = [x[0] for x in aaa if x[1] is not None][0]
+            return rec_type
+        elif none_nb > 5:
+            # not OK
+            raise ValueError(msg)
+
+    def _check_end_type(self):
+        """
+        check only one filled over
+            'NoEndRecurrence'
+            'EndDateRecurrence'
+            'NumberedRecurrence'
+        """
+        msg = 'Recurrence end type error.\n'
+        msg += 'You have to assign exactly one of the following properties:\n'
+        msg += 'NoEndRecurrence, EndDateRecurrence, NumberedRecurrence'
+
+        aaa = [(x, getattr(self, x).start_date.value) for x in (
+            'no_end_rec',
+            'end_date_rec',
+            'numbered_rec')
+        ]
+        none_nb = [x[1] for x in aaa].count(None)
+        if none_nb < 2:
+            # not OK
+            raise ValueError(msg)
+        elif none_nb == 2:
+            # OK
+            # [0] because in this case, there will be always one
+            end_type = [x[0] for x in aaa if x[1] is not None][0]
+            return end_type
+        elif none_nb > 2:
+            # not OK
+            raise ValueError(msg)
 
     def populate_from_node(self, node):
         for child in node:
@@ -947,14 +1068,16 @@ https://msdn.microsoft.com/en-us/library/office/aa564765(v=exchg.140).aspx
         self.adjacent_meetings = AdjacentMeetings(service)
         self.conflicting_meetings = ConflictingMeetings(service)
 
+        # /!\/!\/!\
+        # Ordered list !
+        # Fields must be in this order for the xml request to be valid
+        # /!\/!\/!\
         self.calendar_tag_property_map = [
-            (self.legacy_free_busy_status.tag, self.legacy_free_busy_status),
-            (self.calendar_item_type.tag, self.calendar_item_type),
-            (self.conference_type.tag, self.conference_type),
             (self.start.tag, self.start),
             (self.end.tag, self.end),
             (self.original_start.tag, self.original_start),
             (self.is_all_day_event.tag, self.is_all_day_event),
+            (self.legacy_free_busy_status.tag, self.legacy_free_busy_status),
             (self.location.tag, self.location),
             (self.when.tag, self.when),
             (self.is_meeting.tag, self.is_meeting),
@@ -962,35 +1085,32 @@ https://msdn.microsoft.com/en-us/library/office/aa564765(v=exchg.140).aspx
             (self.is_recurring.tag, self.is_recurring),
             (self.meeting_request_was_sent.tag, self.meeting_request_was_sent),
             (self.is_response_requested.tag, self.is_response_requested),
+            (self.calendar_item_type.tag, self.calendar_item_type),
             (self.my_response_type.tag, self.my_response_type),
-            (self.duration.tag, self.duration),
-            (self.timezone.tag, self.timezone),
-
             (self.organizer.tag, self.organizer),
             (self.required_attendees.tag, self.required_attendees),
             (self.optional_attendees.tag, self.optional_attendees),
             (self.resources.tag, self.resources),
-
+            (self.conflicting_meeting_count.tag,
+             self.conflicting_meeting_count),
+            (self.adjacent_meeting_count.tag, self.adjacent_meeting_count),
+            (self.conflicting_meetings.tag, self.conflicting_meetings),
+            (self.adjacent_meetings.tag, self.adjacent_meetings),
+            (self.duration.tag, self.duration),
+            (self.timezone.tag, self.timezone),
             (self.appointment_reply_time.tag, self.appointment_reply_time),
             (self.appointment_seq_number.tag, self.appointment_seq_number),
             (self.appointment_state.tag, self.appointment_state),
-
+            (self.recurrence.tag, self.recurrence),
             (self.first_occurrence.tag, self.first_occurrence),
             (self.last_occurrence.tag, self.last_occurrence),
             (self.modified_occurrences.tag, self.modified_occurrences),
             (self.deleted_occurrences.tag, self.deleted_occurrences),
-            (self.recurrence.tag, self.recurrence),
-
+            (self.conference_type.tag, self.conference_type),
             (self.allow_new_time_proposal.tag, self.allow_new_time_proposal),
             (self.is_online_meeting.tag, self.is_online_meeting),
             (self.meeting_workspace_url.tag, self.meeting_workspace_url),
             (self.netshow_url.tag, self.netshow_url),
-
-            (self.adjacent_meeting_count.tag, self.adjacent_meeting_count),
-            (self.conflicting_meeting_count.tag,
-             self.conflicting_meeting_count),
-            (self.adjacent_meetings.tag, self.adjacent_meetings),
-            (self.conflicting_meetings.tag, self.conflicting_meetings),
             ]
 
         # Tags starting with 'Is' are considered as Boolean fields
@@ -1046,11 +1166,10 @@ https://msdn.microsoft.com/en-us/library/office/aa564765(v=exchg.140).aspx
             self.sensitivity,
             self.body,
             self.categories,
-            self.start,
-            self.end,
-        ]
+        ] + [x[1] for x in self.calendar_tag_property_map]
 
         return self.children
+
 # <CalendarItem>
 #    <MimeContent/>
 #    <ItemId/>
