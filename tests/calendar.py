@@ -5,6 +5,7 @@
 
 import logging
 import sys
+import base64
 
 from pyews.pyews import WebCredentials, ExchangeService
 from pyews.ews.autodiscover import EWSAutoDiscover, ExchangeAutoDiscoverError
@@ -12,6 +13,7 @@ from pyews.ews.data import *
 from pyews import utils
 from pyews.ews.folder import Folder
 from pyews.ews.calendar import *
+from pyews.ews.item import *
 
 
 def main():
@@ -43,6 +45,12 @@ def main():
     root = bind()
     cfs = root.FindFolders(types=FolderClass.Calendars)
     # cals = ews.FindCalendarItems(cfs[0])
+
+    # att_id = 'AAAQAGMxb2Rvb0BoaWdoY28uZnIARgAAAAAAOO3rSaghRkyF3KhRUnXPkwcAAIlRgN5j1Emsqr28n7FzvwAAAHTcqAAAAIlRgN5j1Emsqr28n7FzvwAABPR66AAAARIAEACA04EHnuGwR5js5uow3i+q'
+    # import pdb; pdb.set_trace()
+    # toto = ews.GetAttachments([att_id])
+
+
     # start_date = '2016-04-06T00:00:00Z'
     # end_date = '2016-04-08T00:00:00Z'
     # find_cals = ews.FindCalendarItemsByBothDate(cfs[0],
@@ -55,9 +63,34 @@ def main():
     # find_cals4 = ews.FindCalendarItemsByDate(cfs[0])
     # assert len(cals) == len(find_cals4)
 
-    cal_id, cal_ck = test_create_calendar_item(ews, cfs[0].Id)
-    import pdb; pdb.set_trace()
+    # cal_id, cal_ck = test_create_calendar_item(ews, cfs[0].Id)
+
+    cal_id = "AAAQAGMxb2Rvb0BoaWdoY28uZnIARgAAAAAAOO3rSaghRkyF3KhRUnXPkwcAAIlRgN5j1Emsqr28n7FzvwAAAHTcqAAAAIlRgN5j1Emsqr28n7FzvwAABPR66AAA"
+    cal_ck = "DwAAABYAAAAAiVGA3mPUSayqvbyfsXO/AAAE9Hv4"
+
     test = ews.GetCalendarItems([cal_id])
+    test[0].subject.value = "JJJD BLABLA"
+    ews.UpdateCalendarItems(test)
+
+    # test_create_attachment(ews, test[0])
+    test_delete_attachment(ews, test[0], 'TEST.TXT')
+
+
+def test_delete_attachment(ews, item, fname):
+    new_read = ews.GetCalendarItems([item.itemid.value])
+    import pdb; pdb.set_trace()
+    for attachment in new_read[0].attachments.entries:
+        if attachment.name.value == fname:
+            ews.DeleteAttachments([attachment.attachment_id.value])
+
+
+def test_create_attachment(ews, item):
+    attach = FileAttachment(ews)
+    attach.name.set('TEST.TXT')
+    file_content = 'Coucou. test creation PJ from Python'
+    attach.content.set(base64.b64encode(file_content))
+    # item.attachments.add(attach)
+    ews.CreateAttachment(item.itemid.value, attach)
 
 
 def test_create_calendar_item(ews, fid):
@@ -81,18 +114,9 @@ def test_create_calendar_item(ews, fid):
     cal.required_attendees.add(att1)
 
     # recurrence
-    cal.recurrence.week_rec.interval.value = 1
-    cal.recurrence.week_rec.days_of_week.value = DaysOfWeekBaseType.Thursday
-    cal.recurrence.no_end_rec.start_date.value = start_date[:10]
-    # <t:Recurrence>
-    #     <t:WeeklyRecurrence>
-    #         <t:Interval>1</t:Interval>
-    #         <t:DaysOfWeek>Friday</t:DaysOfWeek>
-    #     </t:WeeklyRecurrence>
-    #     <t:NoEndRecurrence>
-    #         <t:StartDate>2016-04-08+02:00</t:StartDate>
-    #     </t:NoEndRecurrence>
-    # </t:Recurrence>
+    # cal.recurrence.week_rec.interval.value = 1
+    # cal.recurrence.week_rec.days_of_week.value = DaysOfWeekBaseType.Thursday
+    # cal.recurrence.no_end_rec.start_date.value = start_date[:10]
 
     Id, CK = ews.CreateCalendarItem(fid, cal)
 

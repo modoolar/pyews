@@ -1,0 +1,10 @@
+{% extends "base_request.xml" %}
+{% autoescape None %}
+{% block body %}
+    <m:CreateAttachment>
+      <m:ParentItemId Id="{{ item }}"/>
+      <m:Attachments>
+        {{ attachment.write_to_xml() }}
+      </m:Attachments>
+    </m:CreateAttachment>
+{% end %}

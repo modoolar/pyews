@@ -28,20 +28,52 @@ _logger = logging.getLogger(__name__)
 
 class CalField(Field):
 
-    def __init__(self, tag=None, text=None):
+    def __init__(self, tag=None, text=None, boolean=False):
         Field.__init__(self, tag, text)
         self.furi = ('calendar:%s' % tag) if tag else None
+        self.boolean = boolean
+        self.in_update = True
+
+    def value_as_xml(self):
+        if self.value is not None:
+            if self.boolean:
+                value = escape(unicode(self.value).lower())
+            else:
+                value = escape(unicode(self.value))
+            return value
+        return ''
 
     def write_to_xml_update(self):
-        _logger.debug("PROCESSED TAG %s : %s" % (self.tag, self.value))
-        ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
-        s = '<t:FieldURI FieldURI="%s"/>' % self.furi
-        s += '\n<t:CalendarItem>'
-        s += '\n  <t:%s %s>%s</t:%s>' % (self.tag, ' '.join(ats),
-                                         escape(self.value), self.tag)
-        s += '\n</t:CalendarItem>'
+        children = self.get_children()
 
-        return s
+        if (self.in_update and
+            ((self.value is not None) or (len(self.attrib) > 0) or
+                (len(children) > 0))):
+
+            text = self.value_as_xml()
+            ats = self.atts_as_xml()
+            cs = self.children_as_xml()
+
+            ret = '<t:SetItemField>'
+            ret += '<t:FieldURI FieldURI="%s"/>' % self.furi
+            ret += '<t:CalendarItem>'
+            ret += '<t:%s %s>%s%s</t:%s>' % (self.tag, ats, text, cs, self.tag)
+            ret += '</t:CalendarItem>'
+            ret += '</t:SetItemField>'
+            return ret
+        else:
+            return ''
+
+    # def write_to_xml_update(self):
+    #     _logger.debug("PROCESSED TAG %s : %s" % (self.tag, self.value))
+    #     ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
+    #     s = '<t:FieldURI FieldURI="%s"/>' % self.furi
+    #     s += '\n<t:CalendarItem>'
+    #     s += '\n  <t:%s %s>%s</t:%s>' % (self.tag, ' '.join(ats),
+    #                                      escape(self.value), self.tag)
+    #     s += '\n</t:CalendarItem>'
+
+    #     return s
 
     def write_to_xml_delete(self):
         s = '<t:DeleteItemField>'
@@ -49,8 +81,8 @@ class CalField(Field):
         s += '</t:DeleteItemField>'
         return s
 
-    def write_to_xml_update2(self):
-        return '<t:%s>%s</t:%s>' % (self.tag, escape(self.value), self.tag)
+    # def write_to_xml_update2(self):
+    #     return '<t:%s>%s</t:%s>' % (self.tag, escape(self.value), self.tag)
 
 
 class LegacyFreeBusyStatus(CalField):
@@ -115,7 +147,7 @@ class IsAllDayEvent(CalField):
 https://msdn.microsoft.com/en-us/library/office/aa579667(v=exchg.140).aspx
     """
     def __init__(self, text=None):
-        CalField.__init__(self, 'IsAllDayEvent', text)
+        CalField.__init__(self, 'IsAllDayEvent', text, boolean=True)
 
 
 class Location(CalField):
@@ -142,7 +174,8 @@ A value of true indicates that the calendar item is a meeting.
 A value of false indicates that the calendar item is an appointment.
     """
     def __init__(self, text=None):
-        CalField.__init__(self, 'IsMeeting', text)
+        CalField.__init__(self, 'IsMeeting', text, boolean=True)
+        self.in_update = False
 
 
 class IsCancelled(CalField):
@@ -153,10 +186,11 @@ A value of true indicates that the calendar item has been canceled.
 A value of false indicates that a calendar item has not been canceled.
     """
     def __init__(self, text=None):
-        CalField.__init__(self, 'IsCancelled', text)
+        CalField.__init__(self, 'IsCancelled', text, boolean=True)
+        self.in_update = False
 
 
-class IsRecurring(ReadOnly, CalField):
+class IsRecurring(CalField):
     """
 https://msdn.microsoft.com/en-us/library/office/bb204271(v=exchg.140).aspx
 
@@ -164,7 +198,8 @@ A value of true indicates that the calendar item has been canceled.
 A value of false indicates that a calendar item has not been canceled.
     """
     def __init__(self, text=None):
-        CalField.__init__(self, 'IsRecurring', text)
+        CalField.__init__(self, 'IsRecurring', text, boolean=True)
+        self.in_update = False
 
 
 class MeetingRequestWasSent(CalField):
@@ -175,7 +210,8 @@ A value of true indicates that the calendar item has been canceled.
 A value of false indicates that a calendar item has not been canceled.
     """
     def __init__(self, text=None):
-        CalField.__init__(self, 'MeetingRequestWasSent', text)
+        CalField.__init__(self, 'MeetingRequestWasSent', text, boolean=True)
+        self.in_update = False
 
 
 class IsResponseRequested(CalField):
@@ -183,7 +219,7 @@ class IsResponseRequested(CalField):
 https://msdn.microsoft.com/en-us/library/office/aa563990%28v=exchg.140%29.aspx
     """
     def __init__(self, text=None):
-        CalField.__init__(self, 'IsResponseRequested', text)
+        CalField.__init__(self, 'IsResponseRequested', text, boolean=True)
 
 
 class MyResponseType(CalField):
@@ -195,6 +231,7 @@ https://msdn.microsoft.com/en-us/library/office/aa564248%28v=exchg.140%29.aspx
         err = 'MyResponseType is not in the list %s' % val_list
         assert (text is None or text in val_list), err
         CalField.__init__(self, 'MyResponseType', text)
+        self.in_update = False
 
 
 class ResponseType(CalField):
@@ -229,7 +266,7 @@ class AllowNewTimeProposal(CalField):
 https://msdn.microsoft.com/en-us/library/office/aa564751%28v=exchg.140%29.aspx
     """
     def __init__(self, text=None):
-        CalField.__init__(self, 'AllowNewTimeProposal', text)
+        CalField.__init__(self, 'AllowNewTimeProposal', text, boolean=True)
 
 
 class IsOnlineMeeting(CalField):
@@ -237,7 +274,7 @@ class IsOnlineMeeting(CalField):
 https://msdn.microsoft.com/en-us/library/office/aa565195(v=exchg.140).aspx
     """
     def __init__(self, text=None):
-        CalField.__init__(self, 'IsOnlineMeeting', text)
+        CalField.__init__(self, 'IsOnlineMeeting', text, boolean=True)
 
 
 class MeetingWorkspaceUrl(CalField):
@@ -429,6 +466,7 @@ https://msdn.microsoft.com/en-us/library/office/aa566064%28v=exchg.140%29.aspx
     """
     def __init__(self, text=None):
         CalField.__init__(self, 'AppointmentSequenceNumber', text)
+        self.in_update = False
 
 
 class AppointmentState(ReadOnly, CalField):
@@ -875,6 +913,10 @@ https://msdn.microsoft.com/en-us/library/office/aa580471%28v=exchg.140%29.aspx
     def get_children(self):
         """
         """
+        FIELD_LIST = self.tag_field_mapping.values()
+        rec_list = [getattr(self, x).value is None for x in FIELD_LIST]
+        if all(rec_list):
+            return []
         return self._check_instance_pattern()
 
     def _check_instance_pattern(self):
@@ -967,6 +1009,7 @@ https://msdn.microsoft.com/en-us/library/office/aa580264(v=exchg.140).aspx
     """
     def __init__(self, text=None):
         CalField.__init__(self, 'AdjacentMeetingCount', text)
+        self.in_update = False
 
 
 class ConflictingMeetingCount(CalField):
@@ -975,6 +1018,7 @@ https://msdn.microsoft.com/en-us/library/office/aa563429(v=exchg.140).aspx
     """
     def __init__(self, text=None):
         CalField.__init__(self, 'ConflictingMeetingCount', text)
+        self.in_update = False
 
 
 class ConflictingMeetings(CalField):
@@ -985,6 +1029,7 @@ https://msdn.microsoft.com/en-us/library/office/aa565461%28v=exchg.140%29.aspx
         CalField.__init__(self, 'ConflictingMeetings')
         self.service = service
         self.entries = []
+        self.in_update = False
 
     def add(self, cal_obj):
         self.entries.append(cal_obj)
@@ -1006,6 +1051,7 @@ https://msdn.microsoft.com/en-us/library/office/aa580822%28v=exchg.140%29.aspx
         CalField.__init__(self, 'AdjacentMeetings')
         self.service = service
         self.entries = []
+        self.in_update = False
 
     def add(self, cal_obj):
         self.entries.append(cal_obj)
@@ -1165,6 +1211,7 @@ https://msdn.microsoft.com/en-us/library/office/aa564765(v=exchg.140).aspx
             self.subject,
             self.sensitivity,
             self.body,
+            self.attachments,
             self.categories,
         ] + [x[1] for x in self.calendar_tag_property_map]
 

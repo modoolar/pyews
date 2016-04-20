@@ -1,0 +1,12 @@
+{% extends "base_request.xml" %}
+{% autoescape None %}
+{% block body %}
+    <m:GetAttachment>
+      <m:AttachmentShape/>
+      <m:AttachmentIds>
+        {% for item in items %}
+          <t:AttachmentId Id="{{ item }}"/>
+        {% end %}
+      </m:AttachmentIds>
+    </m:GetAttachment>
+{% end %}

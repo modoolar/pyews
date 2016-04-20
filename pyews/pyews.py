@@ -53,6 +53,11 @@ from ews.request_response import (FindCalendarItemsRequestBothDate,
                                   FindCalendarItemsResponseBothDate)
 from ews.request_response import (FindCalendarItemsRequestDate,
                                   FindCalendarItemsResponseDate)
+from ews.request_response import GetAttachmentsRequest
+from ews.request_response import CreateAttachmentRequest
+from ews.request_response import DeleteAttachmentRequest
+from ews.request_response import UpdateCalendarItemsRequest
+
 
 from tornado import template
 from soap import SoapClient, SoapMessageError, QName_T
@@ -469,6 +474,13 @@ class ExchangeService(object):
 
         return Id, CK
 
+    def CreateAttachment(self, item, attachment):
+        req = CreateAttachmentRequest(self, item=item, attachment=attachment)
+        return req.execute()
+
+    def DeleteAttachments(self, items):
+        req = DeleteAttachmentRequest(self, items=items)
+        return req.execute()
 
     def DeleteItems(self, itemids):
         """Delete items in the exchange store."""
@@ -488,6 +500,14 @@ class ExchangeService(object):
 
         return req.execute()
 
+    def GetAttachments(self, items):
+        """
+        Retrieve specified attachment ids
+        """
+        req = GetAttachmentsRequest(self, items=items)
+        resp = req.execute()
+        return resp.items
+
     def UpdateItems(self, items):
         """
         Fetch updates from the specified folder_id.
@@ -500,6 +520,24 @@ class ExchangeService(object):
         resp = req.execute()
 
         logging.info('pimdb_ex:UpdateItems() - updating items....done')
+        return resp.items
+
+    def UpdateCalendarItems(self, items,
+                            send_meeting_invitations="SendToNone"):
+        """
+        Fetch updates from the specified folder_id.
+        Items in the exchange store.
+        """
+
+        logging.info('pimdb_ex:UpdateCalendarItems() - updating items....')
+
+        req = UpdateCalendarItemsRequest(
+            self,
+            items=items,
+            send_meeting_invitations=send_meeting_invitations)
+        resp = req.execute()
+
+        logging.info('pimdb_ex:UpdateCalendarItems() - updating items....done')
         return resp.items
 
     def SyncFolderItems(self, folder_id, sync_state):

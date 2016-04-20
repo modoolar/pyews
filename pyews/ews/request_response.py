@@ -26,7 +26,7 @@ from abc import ABCMeta, abstractmethod
 from pyews.soap import SoapClient, QName_S, QName_T, QName_M
 from pyews.utils import pretty_xml
 from pyews.ews.contact import Contact
-from pyews.ews.item import Item
+from pyews.ews.item import Item, Content
 from pyews.ews.calendar import CalendarItem
 from pyews.ews.errors import EWSMessageError, EWSResponseError, EWSBaseErrorStr
 
@@ -59,9 +59,9 @@ class Request(object):
     def request_server(self, debug=True):
         # pdb.set_trace()
         r = self.ews.loader.load(self.template).generate(**self.kwargs)
+        print r
         r = utils.pretty_xml(r)
         # uncomment next line to see request sent to exchange server
-        #print r
 
         if debug:
             logging.debug('Request: %s', r)
@@ -226,6 +226,39 @@ class GetFolderResponse(Response):
 ##
 
 
+class CreateAttachmentRequest(Request):
+
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_CREATE_ATT)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    ##
+    # Implement the abstract methods
+    ##
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = CreateAttachmentResponse(self, self.resp_node)
+
+        return self.resp_obj
+
+
+class CreateAttachmentResponse(Response):
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+
+        self.parse_for_errors(QName_M('CreateAttachmentResponseMessage'))
+
+
 class CreateItemsRequest(Request):
 
     def __init__(self, ews, **kwargs):
@@ -317,6 +350,38 @@ class MoveItemsResponse(Response):
 ##
 # DeleteItems
 ##
+
+class DeleteAttachmentRequest(Request):
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_DELETE_ATT)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    ##
+    # Implement the abstract methods
+    ##
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = DeleteAttachmentResponse(self, self.resp_node)
+
+        return self.resp_obj
+
+
+class DeleteAttachmentResponse(Response):
+
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+
+        self.parse_for_errors(QName_M('DeleteAttachmentResponseMessage'))
 
 
 class DeleteItemsRequest(Request):
@@ -687,8 +752,9 @@ class GetCalendarItemsResponse(Response):
             raise EWSBaseErrorStr('\n'.join(errs))
 
         self.items = []
-        for cxml in self.node.iter(QName_T('CalendarItem')):
-            self.items.append(CalendarItem(self, resp_node=cxml))
+        xpath = './/%s/%s' % (QName_M('Items'), QName_T('CalendarItem'))
+        for cxml in self.node.iterfind(xpath):
+            self.items.append(CalendarItem(self.req.ews, resp_node=cxml))
 
 ##
 # GetContacts
@@ -782,9 +848,98 @@ class GetItemsResponse(Response):
         for cxml in self.node.iter(QName_T('Contact')):
             self.items.append(Contact(self, resp_node=cxml))
 
+
+class GetAttachmentsRequest(Request):
+    """
+    """
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_GET_ATTACHMENT)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+        # self.items_map = {}
+        # for item in self.kwargs['items']:
+        #     self.items_map[item.itemid.value] = item
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = GetAttachmentsResponse(self, self.resp_node)
+
+        return self.resp_obj
+
+
+class GetAttachmentsResponse(Response):
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+
+        self.parse_for_errors(QName_M('GetAttachmentResponseMessage'))
+
+        self.items = []
+        # FIXME: As we support additional item types we will add more such
+        # loops.
+        for cxml in self.node.iter(QName_T('Content')):
+            cnt = Content(self.req.ews)
+            cnt.set(cxml.text)
+            self.items.append(cnt)
 ##
 # UpdateItems
 ##
+
+
+class UpdateCalendarItemsRequest(Request):
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_UPDATE_ITEM2)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+        self.items_map = {}
+        for item in self.kwargs['items']:
+            self.items_map[item.itemid.value] = item
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = UpdateCalendarItemsResponse(self, self.resp_node)
+        self.update_change_keys()
+
+        return self.resp_obj
+
+    def update_change_keys(self):
+        for resp_item in self.resp_obj.items:
+            iid = resp_item.itemid.value
+            ck = resp_item.change_key.value
+
+            self.items_map[iid].change_key.set(ck)
+
+
+class UpdateCalendarItemsResponse(Response):
+
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response. FIXME
+        """
+
+        self.parse_for_errors(QName_M('UpdateCalendarItemsResponseMessage'))
+
+        self.items = []
+        # FIXME: As we support additional item types we will add more such
+        # loops.
+        xpath = './/%s/%s' % (QName_M('Items'), QName_T('CalendarItem'))
+        for cxml in self.node.iterfind(xpath):
+            self.items.append(CalendarItem(self.req.ews, resp_node=cxml))
 
 
 class UpdateItemsRequest(Request):

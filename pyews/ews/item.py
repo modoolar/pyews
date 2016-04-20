@@ -56,6 +56,9 @@ class ReadOnly:
     def write_to_xml(self):
         return ''
 
+    def write_to_xml_update(self):
+        return ''
+
 
 class Field:
 
@@ -73,7 +76,7 @@ class Field:
 
         # furi is used when this field needs to be used as part of an update
         # item method
-        self.furi = ('items:%s' % tag) if tag else None
+        self.furi = ('item:%s' % tag) if tag else None
 
     @property
     def value(self):
@@ -130,7 +133,21 @@ class Field:
         return ret
 
     def write_to_xml_update(self):
-        pass
+        if (self.value is not None):
+
+            text = self.value_as_xml()
+            ats = self.atts_as_xml()
+
+            ret = '<t:SetItemField>'
+            ret += '<t:FieldURI FieldURI="%s"/>' % self.furi
+            ret += '<t:Item>'
+            ret += '<t:%s %s>%s</t:%s>' % (self.tag, ats, text, self.tag)
+            ret += '</t:Item>'
+            ret += '</t:SetItemField>'
+
+            return ret
+        else:
+            return ''
 
     def has_updates(self):
         return not (self.value is None or
@@ -195,6 +212,101 @@ class PropVariant:
     TAGGED = 1
     NAMED_INT = 2
     NAMED_STR = 3
+
+
+class Content(Field):
+    def __init__(self, text=None):
+        Field.__init__(self, 'Content', text)
+
+
+class FileAttachment(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa580492(v=exchg.140).aspx
+    """
+
+    class AttachmentId(Field):
+        """
+    https://msdn.microsoft.com/en-us/library/office/aa580987(v=exchg.140).aspx
+        """
+        def __init__(self, text=None):
+            Field.__init__(self, 'AttachmentId', text)
+
+    class Name(Field):
+        def __init__(self, text=None):
+            Field.__init__(self, 'Name', text)
+
+    class ContentType(Field):
+        def __init__(self, text=None):
+            Field.__init__(self, 'ContentType', text)
+
+    def __init__(self, service, node=None):
+        Field.__init__(self, 'FileAttachment')
+        self.service = service
+
+        self.attachment_id = self.AttachmentId(self.service)
+        self.name = self.Name()
+        self.content_type = self.ContentType()
+        self.content = Content()
+
+        self.tag_field_mapping = {
+            'AttachmentId': 'attachment_id',
+            'Name': 'name',
+            'ContentType': 'content_type',
+            'Content': 'content',
+        }
+
+        self.children = [self.name, self.content]
+
+    def populate_from_node(self, node):
+        for child in node:
+            tag = unQName(child.tag)
+            if tag == self.attachment_id.tag:
+                self.attachment_id.set(child.attrib['Id'])
+            elif tag == self.content.tag:
+                self.content.set(child.text)
+            else:
+                getattr(self, self.tag_field_mapping[tag]).value = child.text
+
+
+class Attachments(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa564869(v=exchg.140).aspx
+
+<t:Attachments>
+    <t:FileAttachment>
+        <t:AttachmentId Id="AAAQAGMxb2Rvb0BoaWdoY2..."/>
+        <t:Name>CalendarItem.xml</t:Name>
+        <t:ContentType>text/xml</t:ContentType>
+    </t:FileAttachment>
+</t:Attachments>
+    """
+    def __init__(self, service, node=None):
+        Field.__init__(self, 'Attachments')
+        self.service = service
+        self.entries = []
+        self.children = self.get_children()
+        if node is not None:
+            self.populate_from_node(service, node)
+
+    def add(self, att_obj):
+        self.entries.append(att_obj)
+
+    def get_children(self):
+        return self.entries
+
+    def populate_from_node(self, service, node):
+        for child in node:
+            att = FileAttachment(service)
+            att.populate_from_node(child)
+            if att.content.value is None:
+                # retrieve attachment and set content with it
+                cnt = service.GetAttachments(
+                    [att.attachment_id.value])
+                att.content.set(cnt[0].value)
+            self.entries.append(att)
+
+    def write_to_xml(self):
+        return ''
 
 
 class ExtendedProperty(Field):
@@ -571,6 +683,13 @@ https://msdn.microsoft.com/en-us/library/office/aa565100(v=exchg.140).aspx
         Field.__init__(self, 'Subject', text)
 
 
+class HasAttachments(Field):
+    """
+    """
+    def __init__(self, text=None):
+        Field.__init__(self, 'HasAttachments', text)
+
+
 class Sensitivity(Field):
     """
 https://msdn.microsoft.com/en-us/library/office/aa565687(v=exchg.140).aspx
@@ -642,6 +761,8 @@ class Item(Field):
         self.importance = Importance()
         self.subject = Subject()
         self.body = Body()
+        self.attachments = Attachments(service)
+        self.has_attachments = HasAttachments()
         self.is_reminder_set = ReminderIsSet()
 
         self.tag_property_map = [
@@ -655,6 +776,9 @@ class Item(Field):
             (self.importance.tag, self.importance),
             (self.subject.tag, self.subject),
             (self.body.tag, self.body),
+            (self.attachments.tag, self.attachments),
+            (self.has_attachments.tag, self.has_attachments),
+
             (self.is_reminder_set.tag, self.is_reminder_set),
         ]
         if additional_properties is not None:
@@ -665,7 +789,10 @@ class Item(Field):
         # Tags starting with 'Is' are considered as Boolean fields
         # for other fields that must be considered as Boolean ones,
         # add them in the list below
-        self.boolean_fields_tag = [self.is_reminder_set.tag]
+        self.boolean_fields_tag = [
+            self.is_reminder_set.tag,
+            self.has_attachments.tag
+        ]
         if additional_boolean_fields_tag is not None:
             self.boolean_fields_tag += additional_boolean_fields_tag
 
@@ -693,6 +820,21 @@ class Item(Field):
     # Next, the non-abstract external methods
     ##
 
+    def _get_atts(self, child):
+        return []
+
+    def _get_sets(self, child):
+        if child.has_updates():
+            return [child]
+        else:
+            return []
+
+    def _get_dels(self, child):
+        if not child.has_updates():
+            return [child]
+        else:
+            return []
+
     def get_updates(self):
         """
         Returns a list of child elements that need to be included
@@ -700,18 +842,18 @@ class Item(Field):
         dels)
         """
 
+        atts = []
         sets = []
         dels = []
 
         for child in self.get_children():
-            if child.has_updates():
-                sets.append(child)
-            else:
-                dels.append(child)
+            atts.extend(self._get_atts(child))
+            sets.extend(self._get_sets(child))
+            dels.extend(self._get_dels(child))
 
         # print 'Sets: ', sets
         # print 'Dels: ', dels
-        return [], sets, dels
+        return atts, sets, dels
 
     def get_extended_properties(self):
         return self.eprops
@@ -843,6 +985,8 @@ class Item(Field):
                     child.text)
         elif tag == 'Categories':
             self.categories.add(child.text)
+        elif tag == 'Attachments':
+            self.attachments.populate_from_node(self.service, child)
         elif tag in self.boolean_fields_tag or tag.startswith('Is'):
             # boolean
             setattr(self.mapping_dict_tag_obj[tag],
