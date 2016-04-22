@@ -719,6 +719,7 @@ https://msdn.microsoft.com/en-us/library/office/aa581015(v=exchg.140).aspx
     def __init__(self, type='HTML', text=None):
         Field.__init__(self, 'Body', text)
         self.text_type = type
+        self.attrib['BodyType'] = self.text_type
 
 
 class ReminderIsSet(Field):

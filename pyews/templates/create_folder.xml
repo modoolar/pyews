@@ -13,12 +13,11 @@
                     <t:DisplayName>{{ folder[0] }}</t:DisplayName>
                 </t:ContactsFolder>
             {% else %}
-                <!-- Need more types here. This may not really work for 
+                <!-- Need more types here. This may not really work for
                      other standard folder tpyes -->
-                <t:Folder>
+                <t:CalendarFolder>
                     <t:DisplayName>{{ folder[0] }}</t:DisplayName>
-                    <t:FolderClass>{{ folder[1] }}</t:FolderClass>
-                </t:Folder>
+                </t:CalendarFolder>
             {% end %}
 	{% end %}
 

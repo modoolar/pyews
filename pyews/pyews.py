@@ -127,7 +127,7 @@ class ExchangeService(object):
             folders=info,
             primary_smtp_address=self.primary_smtp_address)
         try:
-            resp, node = self.send(req)
+            resp = self.send(req)
         except SoapMessageError as e:
             raise EWSMessageError(e.resp_code, e.xml_resp, e.node)
 
