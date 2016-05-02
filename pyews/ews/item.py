@@ -475,8 +475,7 @@ class ExtendedProperty(Field):
 
         if (self.efuri.attrib['PropertyTag'] is None and
                 self.efuri.attrib['PropertyType'] is not None and
-                (
-                 self.efuri.attrib['PropertySetId'] is not None or
+                (self.efuri.attrib['PropertySetId'] is not None or
                  self.efuri.attrib['DistinguishedPropertySetId'] is not None
                  ) and
                 self.efuri.attrib['PropertyName'] is None and
@@ -485,8 +484,7 @@ class ExtendedProperty(Field):
 
         if (self.efuri.attrib['PropertyTag'] is None and
                 self.efuri.attrib['PropertyType'] is not None and
-                (
-                 self.efuri.attrib['PropertySetId'] is not None or
+                (self.efuri.attrib['PropertySetId'] is not None or
                  self.efuri.attrib['DistinguishedPropertySetId'] is not None
                  ) and
                 self.efuri.attrib['PropertyName'] is not None and
@@ -572,9 +570,7 @@ class ExtendedProperty(Field):
         """
 
         tp = (len(xml_node.attrib) == 3 and
-              (
-               (
-                'PropertySetId' in xml_node.attrib or
+              (('PropertySetId' in xml_node.attrib or
                 'DistinguishedPropertySetId' in xml_node.attrib
                 ) and
                'PropertyId' in xml_node.attrib and
@@ -606,9 +602,7 @@ class ExtendedProperty(Field):
         """
 
         tp = (len(xml_node.attrib) == 3 and
-              (
-               (
-                'PropertySetId' in xml_node.attrib or
+              (('PropertySetId' in xml_node.attrib or
                 'DistinguishedPropertySetId' in xml_node.attrib
                 ) and
                'PropertyName' in xml_node.attrib and

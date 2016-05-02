@@ -491,6 +491,14 @@ class ExchangeService(object):
 
         return req.execute()
 
+    def GetAttachments(self, items):
+        """
+        Retrieve specified attachment ids
+        """
+        req = GetAttachmentsRequest(self, items=items)
+        resp = req.execute()
+        return resp.items
+
     def MoveItems(self, folder_id, itemids):
         """Move items in the exchange store."""
 
@@ -499,14 +507,6 @@ class ExchangeService(object):
         logging.info('pimdb_ex:MoveItems() - moveing items....done')
 
         return req.execute()
-
-    def GetAttachments(self, items):
-        """
-        Retrieve specified attachment ids
-        """
-        req = GetAttachmentsRequest(self, items=items)
-        resp = req.execute()
-        return resp.items
 
     def UpdateItems(self, items):
         """

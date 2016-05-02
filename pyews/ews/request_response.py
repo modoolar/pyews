@@ -950,7 +950,7 @@ class UpdateItemsRequest(Request):
     """
 
     def __init__(self, ews, **kwargs):
-        Request.__init__(self, ews, template=utils.REQ_UPDATE_ITEM)
+        Request.__init__(self, ews, template=utils.REQ_UPDATE_ITEM2)
         self.kwargs = kwargs
         self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
 
