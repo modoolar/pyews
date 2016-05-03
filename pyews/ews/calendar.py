@@ -328,7 +328,10 @@ https://msdn.microsoft.com/en-us/library/office/aa565036(v=exchg.140).aspx
         #     self.populate_from_node(node)
 
     def get_children(self):
-        return [self.email_address, self.routing_type]
+        return self.children
+
+    def has_updates(self):
+        return True
 
     def populate_from_node(self, node):
         for child in node:
@@ -373,12 +376,19 @@ https://msdn.microsoft.com/en-us/library/office/aa580339%28v=exchg.140%29.aspx
                          self.response_type,
                          self.last_response_time
                          ]
+        self.to_delete = False
 
         self.tag_field_mapping = {
             'Mailbox': 'mailbox',
             'ResponseType': 'response_type',
             'LastResponseTime': 'last_response_time',
         }
+
+    def get_children(self):
+        return self.children
+
+    def has_updates(self):
+        return True
 
     def populate_from_node(self, node):
         for child in node:
@@ -409,6 +419,20 @@ https://msdn.microsoft.com/en-us/library/office/aa580539%28v=exchg.140%29.aspx
             att.populate_from_node(child)
             self.entries.append(att)
 
+    def has_updates(self):
+        return len(self.entries) > 0
+
+    def write_to_xml_update(self):
+        s = '<t:SetItemField>'
+        s += '\n<t:FieldURI FieldURI="calendar:RequiredAttendees"/>'
+        s += '\n<t:CalendarItem>'
+        s += '\n  <t:RequiredAttendees>'
+        s += self.children_as_xml()
+        s += '\n  </t:RequiredAttendees>'
+        s += '\n</t:CalendarItem>'
+        s += '</t:SetItemField>'
+        return s
+
 
 class OptionalAttendees(CalField):
     """
@@ -430,6 +454,20 @@ https://msdn.microsoft.com/en-us/library/office/aa566002%28v=exchg.140%29.aspx
             att.populate_from_node(child)
             self.entries.append(att)
 
+    def has_updates(self):
+        return len(self.entries) > 0
+
+    def write_to_xml_update(self):
+        s = '<t:SetItemField>'
+        s += '\n<t:FieldURI FieldURI="calendar:OptionalAttendees"/>'
+        s += '\n<t:CalendarItem>'
+        s += '\n  <t:OptionalAttendees>'
+        s += self.children_as_xml()
+        s += '\n  </t:OptionalAttendees>'
+        s += '\n</t:CalendarItem>'
+        s += '</t:SetItemField>'
+        return s
+
 
 class Resources(CalField):
     """
@@ -450,6 +488,20 @@ https://msdn.microsoft.com/en-us/library/office/aa564483%28v=exchg.140%29.aspx
             att = Attendee()
             att.populate_from_node(child)
             self.entries.append(att)
+
+    def has_updates(self):
+        return len(self.entries) > 0
+
+    def write_to_xml_update(self):
+        s = '<t:SetItemField>'
+        s += '\n<t:FieldURI FieldURI="calendar:Resources"/>'
+        s += '\n<t:CalendarItem>'
+        s += '\n  <t:Resources>'
+        s += self.children_as_xml()
+        s += '\n  </t:Resources>'
+        s += '\n</t:CalendarItem>'
+        s += '</t:SetItemField>'
+        return s
 
 
 class AppointmentReplyTime(CalField):
@@ -1213,6 +1265,9 @@ https://msdn.microsoft.com/en-us/library/office/aa564765(v=exchg.140).aspx
             self.body,
             self.attachments,
             self.categories,
+            self.reminder_due_by,
+            self.is_reminder_set,
+            self.reminder_minutes_before_start,
         ] + [x[1] for x in self.calendar_tag_property_map]
 
         return self.children

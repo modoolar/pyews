@@ -67,12 +67,13 @@ class Field:
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, tag=None, text=None):
+    def __init__(self, tag=None, text=None, boolean=False):
         self.tag = tag
         self.value = text
         self.attrib = {}
         self.children = []
         self.read_only = False
+        self.boolean = boolean
 
         # furi is used when this field needs to be used as part of an update
         # item method
@@ -94,7 +95,13 @@ class Field:
         return ' '.join(ats)
 
     def value_as_xml(self):
-        return escape(unicode(self.value)) if self.value is not None else ''
+        if self.value is not None:
+            if self.boolean:
+                value = escape(unicode(self.value).lower())
+            else:
+                value = escape(unicode(self.value))
+            return value
+        return ''
 
     def children_as_xml(self):
         self.children = self.get_children()
@@ -721,7 +728,23 @@ class ReminderIsSet(Field):
 https://msdn.microsoft.com/en-us/library/office/aa566410%28v=exchg.140%29.aspx
     """
     def __init__(self, text=None):
-        Field.__init__(self, 'ReminderIsSet', text)
+        Field.__init__(self, 'ReminderIsSet', text, boolean=True)
+
+
+class ReminderDueBy(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa565894(v=exchg.140).aspx
+    """
+    def __init__(self, text=None):
+        Field.__init__(self, 'ReminderDueBy', text)
+
+
+class ReminderMinutesBeforeStart(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa581305(v=exchg.140).aspx
+    """
+    def __init__(self, text=None):
+        Field.__init__(self, 'ReminderMinutesBeforeStart', text)
 
 
 class Item(Field):
@@ -758,7 +781,9 @@ class Item(Field):
         self.body = Body()
         self.attachments = Attachments(service)
         self.has_attachments = HasAttachments()
+        self.reminder_due_by = ReminderDueBy()
         self.is_reminder_set = ReminderIsSet()
+        self.reminder_minutes_before_start = ReminderMinutesBeforeStart()
 
         self.tag_property_map = [
             (self.itemid.tag, self.itemid),
@@ -774,7 +799,10 @@ class Item(Field):
             (self.attachments.tag, self.attachments),
             (self.has_attachments.tag, self.has_attachments),
 
+            (self.reminder_due_by.tag, self.reminder_due_by),
             (self.is_reminder_set.tag, self.is_reminder_set),
+            (self.reminder_minutes_before_start.tag,
+             self.reminder_minutes_before_start),
         ]
         if additional_properties is not None:
             self.tag_property_map += additional_properties
