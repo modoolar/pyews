@@ -482,11 +482,22 @@ class ExchangeService(object):
         req = DeleteAttachmentRequest(self, items=items)
         return req.execute()
 
+    def DeleteCalendarItems(self, itemids,
+                            send_meeting_cancellations="SendToNone"):
+        logging.info('pimdb_ex:DeleteCalendarItems() - deleting items....')
+        req = DeleteItemsRequest(
+            self, itemids=itemids,
+            calendar=True,
+            send_meeting_cancellations=send_meeting_cancellations
+        )
+        logging.info('pimdb_ex:DeleteCalendarItems() - deleting items....done')
+        return req.execute()
+
     def DeleteItems(self, itemids):
         """Delete items in the exchange store."""
 
         logging.info('pimdb_ex:DeleteItems() - deleting items....')
-        req = DeleteItemsRequest(self, itemids=itemids)
+        req = DeleteItemsRequest(self, itemids=itemids, calendar=False)
         logging.info('pimdb_ex:DeleteItems() - deleting items....done')
 
         return req.execute()

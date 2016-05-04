@@ -938,17 +938,17 @@ https://msdn.microsoft.com/en-us/library/office/aa580471%28v=exchg.140%29.aspx
         self.end_date_rec = EndRecurrence()
         self.numbered_rec = NumberedRecurrence()
 
-        self.children = [
-            self.rel_year_rec,
-            self.abs_year_rec,
-            self.rel_month_rec,
-            self.abs_month_rec,
-            self.week_rec,
-            self.day_rec,
-            self.no_end_rec,
-            self.end_date_rec,
-            self.numbered_rec,
-        ]
+        # self.children = [
+        #     self.rel_year_rec,
+        #     self.abs_year_rec,
+        #     self.rel_month_rec,
+        #     self.abs_month_rec,
+        #     self.week_rec,
+        #     self.day_rec,
+        #     self.no_end_rec,
+        #     self.end_date_rec,
+        #     self.numbered_rec,
+        # ]
 
         self.tag_field_mapping = {
             'RelativeYearlyRecurrence': 'rel_year_rec',
@@ -962,13 +962,45 @@ https://msdn.microsoft.com/en-us/library/office/aa580471%28v=exchg.140%29.aspx
             'NumberedRecurrence': 'numbered_rec',
         }
 
+        self.children = self.get_children()
+
+    def write_to_xml_update(self):
+        s = '<t:SetItemField>'
+        s += '\n<t:FieldURI FieldURI="calendar:Recurrence"/>'
+        s += '\n<t:CalendarItem>'
+        s += '\n  <t:Recurrence>'
+        s += self.children_as_xml()
+        s += '\n  </t:Recurrence>'
+        s += '\n</t:CalendarItem>'
+        s += '</t:SetItemField>'
+        return s
+
+    def has_updates(self):
+        return True
+
     def get_children(self):
         """
         """
         FIELD_LIST = self.tag_field_mapping.values()
-        rec_list = [getattr(self, x).value is None for x in FIELD_LIST]
-        if all(rec_list):
+
+        end_type_fields = ['no_end_rec', 'end_date_rec', 'numbered_rec']
+        end_type_list = [getattr(self, x).start_date.value is None
+                         for x in end_type_fields]
+
+        rec_type1_fields = ['rel_year_rec', 'abs_year_rec']
+        rec_type1_list = [getattr(self, x).month.value is None
+                          for x in rec_type1_fields]
+        rec_type_fields = (
+            list(set(FIELD_LIST) -
+                 set(end_type_fields) -
+                 set(rec_type1_fields))
+        )
+        rec_type_list = [getattr(self, x).interval.value is None
+                         for x in rec_type_fields]
+
+        if all(rec_type_list + rec_type1_list + end_type_list):
             return []
+
         return self._check_instance_pattern()
 
     def _check_instance_pattern(self):
