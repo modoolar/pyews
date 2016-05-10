@@ -271,8 +271,11 @@ https://msdn.microsoft.com/en-us/library/office/aa580492(v=exchg.140).aspx
                 self.attachment_id.set(child.attrib['Id'])
             elif tag == self.content.tag:
                 self.content.set(child.text)
+            elif tag == self.name.tag:
+                self.name.set(child.text)
             else:
-                getattr(self, self.tag_field_mapping[tag]).value = child.text
+                continue
+                # getattr(self, self.tag_field_mapping[tag]).value = child.text
 
 
 class Attachments(Field):
