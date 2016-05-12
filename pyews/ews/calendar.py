@@ -592,7 +592,7 @@ class ModifiedOccurrences(CalField):
 
 class DeletedOccurrence(Occurrence):
     def __init__(self, node=None):
-        Occurrence.__init__(node)
+        Occurrence.__init__(self, node)
         self.tag = 'DeletedOccurrence'
         self.furi = self.furi.replace('Occurrence', 'DeletedOccurrence')
 
