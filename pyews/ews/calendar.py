@@ -317,6 +317,7 @@ https://msdn.microsoft.com/en-us/library/office/aa565036(v=exchg.140).aspx
         self.email_address = self.EmailAddress()
         self.routing_type = self.RoutingType('SMTP')
         self.children = [self.name, self.email_address, self.routing_type]
+        self.itemid = ItemId()
 
         self.tag_field_mapping = {
             'Name': 'name',
@@ -336,7 +337,12 @@ https://msdn.microsoft.com/en-us/library/office/aa565036(v=exchg.140).aspx
     def populate_from_node(self, node):
         for child in node:
             tag = unQName(child.tag)
-            getattr(self, self.tag_field_mapping[tag]).value = child.text
+            if tag == self.itemid.tag:
+                self.itemid.set(child.attrib['Id'])
+            else:
+                if tag in self.tag_field_mapping:
+                    getattr(self, self.tag_field_mapping[tag]).value = (
+                        child.text)
 
 
 class Organizer(CalField):

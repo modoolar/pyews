@@ -5,6 +5,7 @@
       <m:ItemShape>
         <t:BaseShape>IdOnly</t:BaseShape>
         <t:AdditionalProperties>
+            <t:FieldURI FieldURI="calendar:RecurrenceId"/>
             <t:ExtendedFieldURI
                  PropertyType="{{ ews_pt(mt.PR_LAST_MODIFICATION_TIME) }}"
                  PropertyTag="{{ ews_pid(mt.PR_LAST_MODIFICATION_TIME) }}" />

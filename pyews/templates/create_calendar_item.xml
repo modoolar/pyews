@@ -1,7 +1,7 @@
 {% extends "base_request.xml" %}
 {% autoescape None %}
 {% block body %}
-    <m:CreateItem SendMeetingInvitations="SendToNone">
+    <m:CreateItem SendMeetingInvitations="{{ send_meeting_invitations }}">
       <m:SavedItemFolderId>
         <t:FolderId Id="{{ folder_id }}"/>
       </m:SavedItemFolderId>

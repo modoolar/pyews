@@ -9,6 +9,7 @@
    xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
    xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
     <soap:Header>
+      <t:RequestServerVersion Version="Exchange2010_SP2"/>
       <t:ExchangeImpersonation>
         <t:ConnectingSID>
           <t:PrincipalName>{{ primary_smtp_address }}</t:PrincipalName>

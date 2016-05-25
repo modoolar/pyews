@@ -8,6 +8,7 @@
             <t:FieldURI FieldURI="calendar:Start"/>
             <t:FieldURI FieldURI="calendar:End"/>
             <t:FieldURI FieldURI="item:Subject"/>
+            <t:FieldURI FieldURI="calendar:RecurrenceId"/>
         </t:AdditionalProperties>
     </m:ItemShape>
 

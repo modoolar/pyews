@@ -31,7 +31,7 @@ def main():
     creds = WebCredentials(USER, PWD)
     ews = ExchangeService()
     ews.credentials = creds
-    ews.primary_smtp_address = "c1odoo@linkingup.org"
+    ews.primary_smtp_address = "c2odoo@linkingup.org"
 
     try:
         ews.AutoDiscoverUrl()
@@ -50,12 +50,12 @@ def main():
     # import pdb; pdb.set_trace()
     # toto = ews.GetAttachments([att_id])
 
-
-    # start_date = '2016-04-06T00:00:00Z'
-    # end_date = '2016-04-08T00:00:00Z'
-    # find_cals = ews.FindCalendarItemsByBothDate(cfs[0],
-    #                                             start_date=start_date,
-    #                                             end_date=end_date)
+    start_date = '2016-05-16T00:00:00Z'
+    end_date = '2016-05-20T00:00:00Z'
+    find_cals = ews.FindCalendarItemsByBothDate(cfs[1],
+                                                start_date=start_date,
+                                                end_date=end_date)
+    import pdb; pdb.set_trace()
     # find_cals2 = ews.FindCalendarItemsByDate(cfs[0],
     #                                          start=end_date)
     # find_cals3 = ews.FindCalendarItemsByDate(cfs[0],
@@ -65,15 +65,15 @@ def main():
 
     # cal_id, cal_ck = test_create_calendar_item(ews, cfs[0].Id)
 
-    cal_id = "AAAQAGMxb2Rvb0BoaWdoY28uZnIARgAAAAAAOO3rSaghRkyF3KhRUnXPkwcAAIlRgN5j1Emsqr28n7FzvwAAAHTcqAAAAIlRgN5j1Emsqr28n7FzvwAABPR66AAA"
-    cal_ck = "DwAAABYAAAAAiVGA3mPUSayqvbyfsXO/AAAE9Hv4"
+    # cal_id = "AAAQAGMxb2Rvb0BoaWdoY28uZnIARgAAAAAAOO3rSaghRkyF3KhRUnXPkwcAAIlRgN5j1Emsqr28n7FzvwAAAHTcqAAAAIlRgN5j1Emsqr28n7FzvwAABPR66AAA"
+    # cal_ck = "DwAAABYAAAAAiVGA3mPUSayqvbyfsXO/AAAE9Hv4"
 
-    test = ews.GetCalendarItems([cal_id])
-    test[0].subject.value = "JJJD BLABLA"
-    ews.UpdateCalendarItems(test)
+    # test = ews.GetCalendarItems([cal_id])
+    # test[0].subject.value = "JJJD BLABLA"
+    # ews.UpdateCalendarItems(test)
 
-    # test_create_attachment(ews, test[0])
-    test_delete_attachment(ews, test[0], 'TEST.TXT')
+    # # test_create_attachment(ews, test[0])
+    # test_delete_attachment(ews, test[0], 'TEST.TXT')
 
 
 def test_delete_attachment(ews, item, fname):
