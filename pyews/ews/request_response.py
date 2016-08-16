@@ -130,8 +130,13 @@ class Response(object):
         for gfrm in self.node.iter(tag):
             resp_class = gfrm.attrib['ResponseClass']
             if resp_class == 'Error':
-                self.err_cnt += 1
-                self.errors.update({i: EWSErrorElement(gfrm)})
+                resp_code = gfrm.find('.//'+QName_M('ResponseCode')).text
+                if resp_code == 'ErrorItemNotFound':
+                    logging.error(resp_code)
+                    continue
+                else:
+                    self.err_cnt += 1
+                    self.errors.update({i: EWSErrorElement(gfrm)})
             elif resp_class == 'Warning':
                 self.war_cnt += 1
                 # FIXME: Need to handle these
@@ -222,10 +227,46 @@ class GetFolderResponse(Response):
             self.folder_node = child
             break
 
+##
+# ConvertId
+##
+
+
+class ConvertIdRequest(Request):
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_CONVERT_ID)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = ConvertIdResponse(self, self.resp_node)
+        return self.resp_obj
+
+
+class ConvertIdResponse(Response):
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+        self.items = []
+        if node is not None:
+                self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+        self.parse_for_errors(
+            QName_M('ConvertIdResponseMessage'))
+
+        for cxml in self.node.iter(QName_M('AlternateId')):
+            self.items.append(cxml.attrib['Id'])
+            break
+
 
 ##
 # GetUserConfiguration
 ##
+
 
 class UpdateCategoryListRequest(Request):
     def __init__(self, ews, **kwargs):
@@ -804,17 +845,35 @@ class GetCalendarItemsResponse(Response):
         if node is not None:
             self.init_from_node(node)
 
+    def convert(self, ids):
+        converted_ids = []
+        for item in ids:
+            response = ConvertIdRequest(self.req.ews, itemid=item).execute()
+            converted_ids.extend(response.items)
+        return converted_ids
+
+    def retry_request_with_converted_id(self):
+        legacy_ids = self.req.kwargs['calendar_item_ids']
+        converted_ids = self.convert(legacy_ids)
+        self.req.kwargs.update(calendar_item_ids=converted_ids)
+        return self.req.execute()
+
     def init_from_node(self, node):
         """
         node is a parsed XML Element containing the response
         """
 
         self.parse_for_errors(QName_M('GetItemResponseMessage'))
-
+        errs = []
         if self.has_errors():
-            errs = []
             for ind, err in self.errors.iteritems():
-                errs.append(err.msg_text)
+                if err.resp_code == 'ErrorInvalidIdMalformedEwsLegacyIdFormat':
+
+                    self.retry_request_with_converted_id()
+                else:
+                    errs.append(err.msg_text)
+
+        if errs:
             raise EWSBaseErrorStr('\n'.join(errs))
 
         self.items = []
@@ -853,21 +912,39 @@ class GetContactsResponse(Response):
         if node is not None:
             self.init_from_node(node)
 
+    def convert(self, ids):
+        converted_ids = []
+        for item in ids:
+            response = ConvertIdRequest(self.req.ews, itemid=item).execute()
+            converted_ids.extend(response.items)
+        return converted_ids
+
+    def retry_request_with_converted_id(self):
+        legacy_ids = self.req.kwargs['contact_ids']
+        converted_ids = self.convert(legacy_ids)
+        self.req.kwargs.update(contact_ids=converted_ids)
+        return self.req.execute()
+
     def init_from_node(self, node):
         """
         node is a parsed XML Element containing the response
         """
-
         self.parse_for_errors(QName_M('GetItemResponseMessage'))
-
+        errs = []
         if self.has_errors():
-            errs = []
             for ind, err in self.errors.iteritems():
-                errs.append(err.msg_text)
+                if err.resp_code == 'ErrorInvalidIdMalformedEwsLegacyIdFormat':
+
+                    self.retry_request_with_converted_id()
+                else:
+                    errs.append(err.msg_text)
+
+        if errs:
             raise EWSBaseErrorStr('\n'.join(errs))
 
         self.items = []
-        for cxml in self.node.iter(QName_T('Contact')):
+        xpath = './/%s/%s' % (QName_M('Items'), QName_T('Contact'))
+        for cxml in self.node.iterfind(xpath):
             self.items.append(Contact(self, resp_node=cxml))
 
 ##
@@ -888,31 +965,31 @@ class GetItemsRequest(Request):
 
     def execute(self):
         self.resp_node = self.request_server(debug=True)
-        self.resp_obj = GetItemsResponse(self, self.resp_node)
+        self.resp_obj = GetContactsResponse(self, self.resp_node)
 
         return self.resp_obj
 
 
-class GetItemsResponse(Response):
+# class GetItemsResponse(Response):
 
-    def __init__(self, req, node=None):
-        Response.__init__(self, req, node)
+#     def __init__(self, req, node=None):
+#         Response.__init__(self, req, node)
 
-        if node is not None:
-            self.init_from_node(node)
+#         if node is not None:
+#             self.init_from_node(node)
 
-    def init_from_node(self, node):
-        """
-        node is a parsed XML Element containing the response
-        """
+#     def init_from_node(self, node):
+#         """
+#         node is a parsed XML Element containing the response
+#         """
 
-        self.parse_for_errors(QName_M('GetItemResponseMessage'))
+#         self.parse_for_errors(QName_M('GetItemResponseMessage'))
 
-        self.items = []
-        # FIXME: As we support additional item types we will add more such
-        # loops.
-        for cxml in self.node.iter(QName_T('Contact')):
-            self.items.append(Contact(self, resp_node=cxml))
+#         self.items = []
+#         # FIXME: As we support additional item types we will add more such
+#         # loops.
+#         for cxml in self.node.iter(QName_T('Contact')):
+#             self.items.append(Contact(self, resp_node=cxml))
 
 
 class GetAttachmentsRequest(Request):

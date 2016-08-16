@@ -1,0 +1,9 @@
+{% extends "base_request.xml" %}
+{% autoescape None %}
+{% block body %}
+    <m:ConvertId DestinationFormat="EwsId">
+        <m:SourceIds>
+            <t:AlternateId Format="EwsLegacyId" Id="{{ itemid }}" Mailbox="{{ primary_smtp_address }}"/>
+        </m:SourceIds>
+    </m:ConvertId>
+{% end %}

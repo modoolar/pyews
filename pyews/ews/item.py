@@ -1010,7 +1010,8 @@ class Item(Field):
                     'value',
                     child.text)
         elif tag == 'Categories':
-            self.categories.add(child.text)
+            for cat in child._children:
+                self.categories.add(cat.text)
         elif tag == 'Attachments':
             self.attachments.populate_from_node(self.service, child)
         elif tag in self.boolean_fields_tag or tag.startswith('Is'):

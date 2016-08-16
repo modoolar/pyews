@@ -39,6 +39,7 @@ REQ_CREATE_ATT = template_fn("create_attachment.xml")
 REQ_DELETE_ATT = template_fn("delete_attachment.xml")
 REQ_GET_USER_CONF = template_fn("get_user_configuration.xml")
 REQ_UPD_USER_CONF = template_fn("update_user_configuration.xml")
+REQ_CONVERT_ID = template_fn("convert_id.xml")
 
 
 def pretty_xml(x):

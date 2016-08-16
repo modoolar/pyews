@@ -33,7 +33,7 @@ from ews.errors import EWSDeleteFolderError
 from ews.folder import Folder
 from ews.contact import Contact
 
-from ews.request_response import GetItemsRequest, GetItemsResponse
+from ews.request_response import GetItemsRequest
 from ews.request_response import GetContactsRequest, GetContactsResponse
 from ews.request_response import FindItemsRequest, FindItemsResponse
 from ews.request_response import CreateItemsRequest, CreateItemsResponse
@@ -60,6 +60,7 @@ from ews.request_response import DeleteAttachmentRequest
 from ews.request_response import UpdateCalendarItemsRequest
 from ews.request_response import GetUserConfigurationRequest
 from ews.request_response import UpdateCategoryListRequest
+from ews.request_response import ConvertIdRequest
 
 
 from tornado import template
@@ -111,6 +112,13 @@ class ExchangeService(object):
     # 'properisation'.
     ##
 
+    def ConvertId(self, itemid):
+        req = ConvertIdRequest(self,
+                               itemid=itemid,
+                               primary_smtp_address=self.primary_smtp_address)
+        resp = req.execute()
+        return resp.items
+
     def GetUserConfiguration(self, conf_name, folderId, properties):
         """
         """
@@ -154,7 +162,8 @@ class ExchangeService(object):
             unicode_categs = ''.join(categs)
             req = UpdateCategoryListRequest(
                 self,
-                existing_categs=base64.b64encode(unicode_categs.encode('utf-8')),
+                existing_categs=base64.b64encode(
+                    unicode_categs.encode('utf-8')),
                 folderId=folderId,
                 primary_smtp_address=self.primary_smtp_address
             )
