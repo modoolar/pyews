@@ -22,6 +22,7 @@
 import logging
 import re
 import pdb
+import base64
 import utils
 from utils import pretty_xml
 from ews.autodiscover import EWSAutoDiscover, ExchangeAutoDiscoverError
@@ -57,6 +58,8 @@ from ews.request_response import GetAttachmentsRequest
 from ews.request_response import CreateAttachmentRequest
 from ews.request_response import DeleteAttachmentRequest
 from ews.request_response import UpdateCalendarItemsRequest
+from ews.request_response import GetUserConfigurationRequest
+from ews.request_response import UpdateCategoryListRequest
 
 
 from tornado import template
@@ -107,6 +110,55 @@ class ExchangeService(object):
     # based request that does the needful. Hm. there is no end to this
     # 'properisation'.
     ##
+
+    def GetUserConfiguration(self, conf_name, folderId, properties):
+        """
+        """
+        req = GetUserConfigurationRequest(
+            self,
+            configuration_name=conf_name,
+            folder_id=folderId,
+            configuration_properties_type=properties,
+            primary_smtp_address=self.primary_smtp_address
+        )
+        resp = req.execute()
+        return resp.categories
+
+    def UpdateCategoryList_fromstring(self, string, folderId):
+        """ Do not use it. Only here for debugging reasons..."""
+        req = UpdateCategoryListRequest(
+            self,
+            existing_categs=base64.b64encode(string),
+            folderId=folderId,
+            primary_smtp_address=self.primary_smtp_address
+        )
+        req.execute()
+
+    def UpdateCategoryList(self, name, color_index, folderId):
+        existing_categs = self.GetUserConfiguration(
+            'CategoryList',
+            WellKnownFolderName.Calendar,
+            "All")
+        to_create = True
+        for cat in existing_categs:
+            if cat['name'] == name:
+                to_create = False
+                break
+        if to_create:
+            existing_categs.append({'name': name, 'color': color_index})
+            categs = ['<categories xmlns="CategoryList.xsd">']
+            for cat in existing_categs:
+                categs.append('<category name="%s" color="%s" />' % (
+                    cat['name'], cat['color']))
+            categs.append('</categories>')
+            unicode_categs = ''.join(categs)
+            req = UpdateCategoryListRequest(
+                self,
+                existing_categs=base64.b64encode(unicode_categs.encode('utf-8')),
+                folderId=folderId,
+                primary_smtp_address=self.primary_smtp_address
+            )
+            resp = req.execute()
 
     def AutoDiscoverUrl(self):
         """blame the weird naming on the EWS MS APi."""

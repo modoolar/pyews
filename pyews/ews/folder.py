@@ -111,6 +111,16 @@ class Folder:
         resp = req.execute()
         return Folder(service, wkfn, node=resp.folder_node)
 
+    @classmethod
+    def bind_df(self, service, wkfn):
+        """Bind to a given folder and returs a lt of awesome information about
+        this folder. wkfn stands for well known folder name. This method
+        returns a Folder object"""
+
+        req = GetFolderRequest(service, folder_name=wkfn)
+        resp = req.execute()
+        return Folder(service, wkfn, node=resp.node)
+
     ##
     # Internal methods
     ##
@@ -124,16 +134,15 @@ class Folder:
         #     self.ChangeKey = fid_elem.attrib['ChangeKey']
 
         # assert self.Id
-        # pdb.set_trace()
-        idelem = root.find(QName_T('FolderId'))
+        idelem = root.find(".//"+QName_T('FolderId'))
         self.Id = idelem.attrib['Id']
         self.ChangeKey = idelem.attrib['ChangeKey']
 
-        self.DisplayName = self._node_text(root, QName_T('DisplayName'))
+        self.DisplayName = self._node_text(root, ".//"+QName_T('DisplayName'))
         self.ChildFolderCount = self._node_text(
-            root, QName_T('ChildFolderCount'))
-        self.FolderClass = self._node_text(root, QName_T('FolderClass'))
-        self.TotalCount = self._node_text(root, QName_T('TotalCount'))
+            root, ".//"+QName_T('ChildFolderCount'))
+        self.FolderClass = self._node_text(root, ".//"+QName_T('FolderClass'))
+        self.TotalCount = self._node_text(root, ".//"+QName_T('TotalCount'))
         self.TotalCount = int(self.TotalCount)
 
     def _node_text(self, node, tag):

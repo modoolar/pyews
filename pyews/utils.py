@@ -37,6 +37,8 @@ REQ_FIND_CAL_ITEM_DATE = template_fn("find_calendar_item_by_date.xml")
 REQ_GET_ATTACHMENT = template_fn("get_attachment.xml")
 REQ_CREATE_ATT = template_fn("create_attachment.xml")
 REQ_DELETE_ATT = template_fn("delete_attachment.xml")
+REQ_GET_USER_CONF = template_fn("get_user_configuration.xml")
+REQ_UPD_USER_CONF = template_fn("update_user_configuration.xml")
 
 
 def pretty_xml(x):

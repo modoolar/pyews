@@ -19,6 +19,7 @@
 # not, see <http://www.gnu.org/licenses/>.
 import pdb
 import logging
+import base64
 import xml.etree.ElementTree as ET
 import pyews.utils as utils
 
@@ -220,6 +221,71 @@ class GetFolderResponse(Response):
         for child in self.node.iter(QName_T('Folder')):
             self.folder_node = child
             break
+
+
+##
+# GetUserConfiguration
+##
+
+class UpdateCategoryListRequest(Request):
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_UPD_USER_CONF)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = UpdateCategoryListResponse(self, self.resp_node)
+        return self.resp_obj
+
+
+class UpdateCategoryListResponse(Response):
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+
+        if node is not None:
+                self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+
+        self.parse_for_errors(
+            QName_M('UpdateUserConfigurationResponseMessage'))
+
+
+class GetUserConfigurationRequest(Request):
+
+    def __init__(self, ews, **kwargs):
+        Request.__init__(self, ews, template=utils.REQ_GET_USER_CONF)
+        self.kwargs = kwargs
+        self.kwargs.update({'primary_smtp_address': ews.primary_smtp_address})
+
+    def execute(self):
+        self.resp_node = self.request_server(debug=True)
+        self.resp_obj = GetUserConfigurationResponse(self, self.resp_node)
+        return self.resp_obj
+
+
+class GetUserConfigurationResponse(Response):
+    def __init__(self, req, node=None):
+        Response.__init__(self, req, node)
+        self.categories = []
+        if node is not None:
+            self.init_from_node(node)
+
+    def init_from_node(self, node):
+        """
+        node is a parsed XML Element containing the response
+        """
+
+        self.parse_for_errors(QName_M('GetUserConfigurationResponseMessage'))
+        xml_data_b64 = self.node.find('.//'+QName_T('XmlData')).text
+        xml_data = base64.b64decode(xml_data_b64)
+        self.categories = [a.attrib for a in ET.fromstring(
+            xml_data).getchildren()]
+
 
 ##
 # CreateItems

@@ -33,6 +33,7 @@ import mapitags
 
 class WellKnownFolderName:
     MsgFolderRoot = 'msgfolderroot'
+    Calendar = 'calendar'
 
 
 class BaseProperties:

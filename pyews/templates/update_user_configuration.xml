@@ -1,0 +1,12 @@
+{% extends "base_request.xml" %}
+{% autoescape None %}
+{% block body %}
+<m:UpdateUserConfiguration>
+    <m:UserConfiguration>
+        <t:UserConfigurationName Name="CategoryList">
+        <t:DistinguishedFolderId Id="{{ folderId }}"/>
+    </t:UserConfigurationName>
+    <t:XmlData>{{ existing_categs }}</t:XmlData>
+    </m:UserConfiguration>
+</m:UpdateUserConfiguration>
+{% end %}
