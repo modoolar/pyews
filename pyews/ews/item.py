@@ -306,6 +306,9 @@ https://msdn.microsoft.com/en-us/library/office/aa564869(v=exchg.140).aspx
 
     def populate_from_node(self, service, node):
         for child in node:
+            tag = unQName(child.tag)
+            if tag != 'FileAttachment':
+                continue
             att = FileAttachment(service)
             att.populate_from_node(child)
             if att.content.value is None:
