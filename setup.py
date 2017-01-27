@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-from setuptools import setup
+from setuptools import setup, find_packages
 
 __author__ = ''
 __author_email__ = ''
-__version__ = '1.0'
+__version__ = '1.1'
 __license__ = 'AGPL-v3'
 __docs__ = """"""
 __url__ = """"""
@@ -32,7 +32,7 @@ setup(name='pyews',
           'Programming Language :: Python :: Implementation :: PyPy',
           'Topic :: Text Processing :: Markup :: XML',
       ],
-      py_modules=['pyews'],
+      packages=find_packages(exclude=('tests', 'docs')),
       tests_require=['nose>=1.0', 'coverage'],
       install_requires=['requests==2.9.1', 'tornado==4.3'],
       )
