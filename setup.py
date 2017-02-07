@@ -33,6 +33,7 @@ setup(name='pyews',
           'Topic :: Text Processing :: Markup :: XML',
       ],
       packages=find_packages(exclude=('tests', 'docs')),
+      package_data={'pyews': ['templates/*.xml']},
       tests_require=['nose>=1.0', 'coverage'],
       install_requires=['requests==2.9.1', 'tornado==4.3'],
       )
