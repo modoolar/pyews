@@ -737,6 +737,14 @@ https://msdn.microsoft.com/en-us/library/office/aa566410%28v=exchg.140%29.aspx
         Field.__init__(self, 'ReminderIsSet', text, boolean=True)
 
 
+class IsDraft(Field):
+    """
+https://msdn.microsoft.com/en-us/library/office/aa566410%28v=exchg.140%29.aspx
+    """
+    def __init__(self, text=None):
+        Field.__init__(self, 'IsDraft', text, boolean=True)
+
+
 class ReminderDueBy(Field):
     """
 https://msdn.microsoft.com/en-us/library/office/aa565894(v=exchg.140).aspx
@@ -789,6 +797,7 @@ class Item(Field):
         self.has_attachments = HasAttachments()
         self.reminder_due_by = ReminderDueBy()
         self.is_reminder_set = ReminderIsSet()
+        self.is_draft = IsDraft()
         self.reminder_minutes_before_start = ReminderMinutesBeforeStart()
 
         self.tag_property_map = [
@@ -800,6 +809,7 @@ class Item(Field):
             (self.categories.tag, self.categories),
             (self.sensitivity.tag, self.sensitivity),
             (self.importance.tag, self.importance),
+            (self.is_draft.tag, self.is_draft),
             (self.subject.tag, self.subject),
             (self.body.tag, self.body),
             (self.attachments.tag, self.attachments),
@@ -820,7 +830,8 @@ class Item(Field):
         # add them in the list below
         self.boolean_fields_tag = [
             self.is_reminder_set.tag,
-            self.has_attachments.tag
+            self.has_attachments.tag,
+            self.is_draft.tag
         ]
         if additional_boolean_fields_tag is not None:
             self.boolean_fields_tag += additional_boolean_fields_tag
