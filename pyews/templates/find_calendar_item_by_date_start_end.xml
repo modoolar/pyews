@@ -1,0 +1,24 @@
+{% extends "base_request.xml" %}
+
+{% block body %}
+    <m:FindItem Traversal="Shallow">
+        <m:ItemShape>
+            <t:BaseShape>Default</t:BaseShape>
+            <t:AdditionalProperties>
+                <t:FieldURI FieldURI="calendar:Start"/>
+                <t:FieldURI FieldURI="calendar:End"/>
+                <t:FieldURI FieldURI="item:Subject"/>
+                <t:FieldURI FieldURI="calendar:RecurrenceId"/>
+                <t:FieldURI FieldURI="calendar:UID"/>
+            </t:AdditionalProperties>
+        </m:ItemShape>
+        <m:CalendarView
+            StartDate="{{ start_date }}"
+            EndDate="{{ end_date }}"
+            />
+        <m:ParentFolderIds>
+            <t:FolderId Id="{{ folder_id }} " />
+        </m:ParentFolderIds>
+        <m:QueryString>System.Category:'Odoo'</m:QueryString>
+    </m:FindItem>
+{% end %}

@@ -6,9 +6,16 @@
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages" 
+   xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
    xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
-
+    <soap:Header>
+      <t:RequestServerVersion Version="Exchange2010_SP2"/>
+      <t:ExchangeImpersonation>
+        <t:ConnectingSID>
+          <t:PrincipalName>{{ primary_smtp_address }}</t:PrincipalName>
+        </t:ConnectingSID>
+      </t:ExchangeImpersonation>
+    </soap:Header>
   <soap:Body>
     {% block body %}
     {% end %}

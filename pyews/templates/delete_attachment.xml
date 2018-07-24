@@ -1,0 +1,11 @@
+{% extends "base_request.xml" %}
+{% autoescape None %}
+{% block body %}
+    <m:DeleteAttachment>
+       <m:AttachmentIds>
+        {% for item in items %}
+          <t:AttachmentId Id="{{ item }}"/>
+        {% end %}
+      </m:AttachmentIds>
+    </m:DeleteAttachment>
+{% end %}

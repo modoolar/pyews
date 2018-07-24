@@ -7,21 +7,25 @@
             <t:ItemChange>
               <t:ItemId Id="{{ item.itemid }}" ChangeKey="{{ item.change_key }}" />
               <t:Updates>
-    
+
               {% set adds, sets, dels = item.get_updates() %}
-    
+
               {% for child in adds %}
               {% end %}
-    
+
               {% for child in sets %}
-                <t:SetItemField>
-                    {{ child.write_to_xml_update() }}
-                </t:SetItemField>
+                {% if child.value is not None %}
+                  <t:SetItemField>
+                      {{ child.write_to_xml_update() }}
+                  </t:SetItemField>
+                {% else %}
+                    {{ child.write_to_xml_delete() }}
+                {% end %}
               {% end %}
-    
+
               {% for child in dels %}
               {% end %}
-    
+
               </t:Updates>
             </t:ItemChange>
         {% end %}

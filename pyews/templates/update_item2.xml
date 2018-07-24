@@ -1,0 +1,37 @@
+{% extends "base_request.xml" %}
+{% autoescape None %}
+{% block body %}
+{% if items[0].__class__.__name__ == 'CalendarItem' %}
+<m:UpdateItem ConflictResolution="NeverOverwrite" SendMeetingInvitationsOrCancellations="{{ send_meeting_invitations }}">
+{% else %}
+  <m:UpdateItem ConflictResolution="NeverOverwrite">
+{% end %}
+        <m:ItemChanges>
+            {% for item in items %}
+            <t:ItemChange>
+              <t:ItemId Id="{{ item.itemid }}" ChangeKey="{{ item.change_key }}" />
+              <t:Updates>
+
+                  {% set adds, sets, dels = item.get_updates() %}
+
+                  {% for child in adds %}
+
+                  {% end %}
+
+                  {% for child in sets %}
+                      {% if child.value is not None or child.get_children() %}
+                          <!-- <t:SetItemField> -->
+                          {{ child.write_to_xml_update() }}
+                          <!-- </t:SetItemField> -->
+                      {% end %}
+                  {% end %}
+
+                  {% for child in dels %}
+                  {% end %}
+
+              </t:Updates>
+          </t:ItemChange>
+          {% end %}
+      </m:ItemChanges>
+  </m:UpdateItem>
+  {% end %}

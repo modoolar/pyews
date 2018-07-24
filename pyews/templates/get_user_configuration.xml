@@ -1,0 +1,10 @@
+{% extends "base_request.xml" %}
+{% autoescape None %}
+{% block body %}
+<m:GetUserConfiguration>
+    <m:UserConfigurationName Name="{{ configuration_name }}">
+        <t:DistinguishedFolderId Id="{{ folder_id }}"/>
+    </m:UserConfigurationName>
+    <m:UserConfigurationProperties>{{ configuration_properties_type }}</m:UserConfigurationProperties>
+</m:GetUserConfiguration>
+{% end %}

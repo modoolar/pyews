@@ -1,7 +1,11 @@
 {% extends "base_request.xml" %}
 
 {% block body %}
-    <m:DeleteItem DeleteType="MoveToDeletedItems">
+{% if calendar %}
+      <m:DeleteItem DeleteType="MoveToDeletedItems" SendMeetingCancellations="{{ send_meeting_cancellations }}">
+{% else %}
+      <m:DeleteItem DeleteType="MoveToDeletedItems">
+{% end %}
       <m:ItemIds>
         {% for itemid in itemids %}
           <t:ItemId Id="{{itemid }}"/>
