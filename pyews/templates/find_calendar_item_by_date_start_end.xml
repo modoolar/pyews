@@ -19,6 +19,13 @@
         <m:ParentFolderIds>
             <t:FolderId Id="{{ folder_id }} " />
         </m:ParentFolderIds>
-        <m:QueryString>System.Category:'Odoo'</m:QueryString>
+        <m:Restriction>
+            <t:IsEqualTo>
+                <t:FieldURI FieldURI="item:Categories"/>
+                <t:FieldURIOrConstant>
+                    <t:Constant Value="Odoo"/>
+                </t:FieldURIOrConstant>
+            </t:IsEqualTo>
+        </m:Restriction>
     </m:FindItem>
 {% end %}

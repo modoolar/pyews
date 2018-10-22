@@ -17,21 +17,28 @@
 			     Offset="{{ offset }}"
 			     BasePoint="Beginning" />
       <m:Restriction>
-        <t:IsGreaterThan>
-             <t:ExtendedFieldURI
-                  PropertyType="{{ ews_pt(mt.PR_LAST_MODIFICATION_TIME) }}"
-                  PropertyTag="{{ ews_pid(mt.PR_LAST_MODIFICATION_TIME) }}" />
-    
-             <t:FieldURIOrConstant>
-                 <t:Constant Value="{{ lmt }}" />
-             </t:FieldURIOrConstant>
-        </t:IsGreaterThan>
+          <t:And>
+              <t:IsEqualTo>
+                <t:FieldURI FieldURI="item:Categories"/>
+                <t:FieldURIOrConstant>
+                    <t:Constant Value="Odoo"/>
+                </t:FieldURIOrConstant>
+            </t:IsEqualTo>
+            <t:IsGreaterThan>
+                 <t:ExtendedFieldURI
+                      PropertyType="{{ ews_pt(mt.PR_LAST_MODIFICATION_TIME) }}"
+                      PropertyTag="{{ ews_pid(mt.PR_LAST_MODIFICATION_TIME) }}" />
+
+                 <t:FieldURIOrConstant>
+                     <t:Constant Value="{{ lmt }}" />
+                 </t:FieldURIOrConstant>
+            </t:IsGreaterThan>
+          </t:And>
       </m:Restriction>
 
       <m:ParentFolderIds>
         <t:FolderId Id="{{ folder_id }} " />
       </m:ParentFolderIds>
-      <m:QueryString>System.Category:'Odoo'</m:QueryString>
     </m:FindItem>
 {% end %}
 
