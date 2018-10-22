@@ -220,6 +220,7 @@ https://msdn.microsoft.com/en-us/library/office/aa563990%28v=exchg.140%29.aspx
     """
     def __init__(self, text=None):
         CalField.__init__(self, 'IsResponseRequested', text, boolean=True)
+        self.in_update = False
 
 
 class MyResponseType(CalField):
@@ -275,6 +276,7 @@ https://msdn.microsoft.com/en-us/library/office/aa565195(v=exchg.140).aspx
     """
     def __init__(self, text=None):
         CalField.__init__(self, 'IsOnlineMeeting', text, boolean=True)
+        self.in_update = False
 
 
 class MeetingWorkspaceUrl(CalField):
@@ -283,6 +285,7 @@ https://msdn.microsoft.com/en-us/library/office/aa563246%28v=exchg.140%29.aspx
     """
     def __init__(self, text=None):
         CalField.__init__(self, 'MeetingWorkspaceUrl', text)
+        self.in_update = False
 
 
 class NetShowUrl(CalField):
@@ -291,6 +294,7 @@ https://msdn.microsoft.com/en-us/library/office/aa564533(v=exchg.140).aspx
     """
     def __init__(self, text=None):
         CalField.__init__(self, 'NetShowUrl', text)
+        # self.in_update = False
 
 
 class Mailbox(CalField):
@@ -352,6 +356,7 @@ https://msdn.microsoft.com/en-us/library/office/aa581279%28v=exchg.140%29.aspx
     def __init__(self, node=None):
         CalField.__init__(self, 'Organizer')
         self.mailbox = Mailbox()
+        self.in_update = False
 
     def populate_from_node(self, node):
         for child in node:
@@ -516,6 +521,7 @@ https://msdn.microsoft.com/en-us/library/office/aa563784%28v=exchg.140%29.aspx
     """
     def __init__(self, text=None):
         CalField.__init__(self, 'AppointmentReplyTime', text)
+        self.in_update = False
 
 
 class AppointmentSequenceNumber(CalField):
