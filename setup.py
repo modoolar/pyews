@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 __author__ = ''
 __author_email__ = ''
-__version__ = '1.1'
+__version__ = '1.2'
 __license__ = 'AGPL-v3'
 __docs__ = """"""
 __url__ = """"""
@@ -21,14 +21,7 @@ setup(name='pyews',
           'License :: OSI Approved :: AGPL v3',
           'Operating System :: OS Independent',
           'Programming Language :: Python',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.5',
-          'Programming Language :: Python :: 2.6',
-          'Programming Language :: Python :: 2.7',
-          'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.2',
-          'Programming Language :: Python :: 3.3',
-          'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: Implementation :: PyPy',
           'Topic :: Text Processing :: Markup :: XML',
       ],
