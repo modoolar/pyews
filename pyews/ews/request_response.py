@@ -36,9 +36,7 @@ from pyews.ews.errors import EWSMessageError, EWSResponseError, EWSBaseErrorStr
 ##
 
 
-class Request(object):
-    __metaclass__ = ABCMeta
-
+class Request(object, metaclass=ABCMeta):
     def __init__(self, ews, template=None):
         self.ews = ews
         self.template = template
@@ -60,7 +58,7 @@ class Request(object):
     def request_server(self, debug=True):
         # pdb.set_trace()
         r = self.ews.loader.load(self.template).generate(**self.kwargs)
-        print r
+        print(r)
         r = utils.pretty_xml(r)
         # uncomment next line to see request sent to exchange server
 
@@ -150,7 +148,7 @@ class Response(object):
 
         if self.has_errors():
             logging.error('Response.parse: Found %d errors', self.err_cnt)
-            for ind, err in self.errors.iteritems():
+            for ind, err in list(self.errors.items()):
                 logging.error('  Item num %02d - %s', ind, err)
 
     def has_errors(self):
@@ -746,7 +744,7 @@ class SearchContactByEmailRequest(Request):
     ##
 
     def execute(self):
-        print '*** WTF: ', self.kwargs
+        print(('*** WTF: ', self.kwargs))
         self.resp_node = self.request_server(debug=True)
         self.resp_obj = SearchContactByEmailResponse(self, self.resp_node)
 
@@ -791,7 +789,7 @@ class FindItemsLMTRequest(Request):
     ##
 
     def execute(self):
-        print '*** WTF: ', self.kwargs
+        print(('*** WTF: ', self.kwargs))
         self.resp_node = self.request_server(debug=True)
         self.resp_obj = FindItemsLMTResponse(self, self.resp_node)
 
@@ -866,7 +864,7 @@ class GetCalendarItemsResponse(Response):
         self.parse_for_errors(QName_M('GetItemResponseMessage'))
         errs = []
         if self.has_errors():
-            for ind, err in self.errors.iteritems():
+            for ind, err in list(self.errors.items()):
                 if err.resp_code == 'ErrorInvalidIdMalformedEwsLegacyIdFormat':
 
                     self.retry_request_with_converted_id()
@@ -932,7 +930,7 @@ class GetContactsResponse(Response):
         self.parse_for_errors(QName_M('GetItemResponseMessage'))
         errs = []
         if self.has_errors():
-            for ind, err in self.errors.iteritems():
+            for ind, err in list(self.errors.items()):
                 if err.resp_code == 'ErrorInvalidIdMalformedEwsLegacyIdFormat':
 
                     self.retry_request_with_converted_id()

@@ -26,7 +26,7 @@
 # be recognizabe for EWS / EWS Managed API users
 ##
 
-import mapitags
+from . import mapitags
 
 # perhaps this is not required?
 
@@ -39,12 +39,12 @@ class WellKnownFolderName:
 class BaseProperties:
     @classmethod
     def _props(cls):
-        return [i for i in cls.__dict__.keys() if i[:1] != '_']
+        return [i for i in list(cls.__dict__.keys()) if i[:1] != '_']
 
     @classmethod
     def _props_values(cls):
         return [
-            getattr(cls, i) for i in cls._props() if isinstance(i, basestring)
+            getattr(cls, i) for i in cls._props() if isinstance(i, str)
         ]
 
 
@@ -274,7 +274,7 @@ MapiPropertyTypeType = {
 }
 
 MapiPropertyTypeTypeInv = {}
-for k, v in MapiPropertyTypeType.iteritems():
+for k, v in list(MapiPropertyTypeType.items()):
     MapiPropertyTypeTypeInv[v] = k
 
 

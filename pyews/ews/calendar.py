@@ -5,7 +5,7 @@
 
 import logging
 
-from item import (ReadOnly,
+from .item import (ReadOnly,
                   Item,
                   ItemId,
                   ChangeKey,
@@ -37,9 +37,9 @@ class CalField(Field):
     def value_as_xml(self):
         if self.value is not None:
             if self.boolean:
-                value = escape(unicode(self.value).lower())
+                value = escape(str(self.value).lower())
             else:
-                value = escape(unicode(self.value))
+                value = escape(str(self.value))
             return value
         return ''
 
@@ -987,7 +987,7 @@ https://msdn.microsoft.com/en-us/library/office/aa580471%28v=exchg.140%29.aspx
     def get_children(self):
         """
         """
-        FIELD_LIST = self.tag_field_mapping.values()
+        FIELD_LIST = list(self.tag_field_mapping.values())
 
         end_type_fields = ['no_end_rec', 'end_date_rec', 'numbered_rec']
         end_type_list = [getattr(self, x).start_date.value is None

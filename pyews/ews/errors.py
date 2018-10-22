@@ -41,7 +41,7 @@ class EWSResponseError(Exception):
 
     def __str__(self):
         s = 'Errors: '
-        for i, err in self.resp_obj.errors.iteritems():
+        for i, err in list(self.resp_obj.errors.items()):
             s += '\n  %02d - %s' % (i, str(err))
 
         return s

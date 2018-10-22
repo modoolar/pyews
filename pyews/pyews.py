@@ -23,52 +23,52 @@ import logging
 import re
 import pdb
 import base64
-import utils
-from utils import pretty_xml
-from ews.autodiscover import EWSAutoDiscover, ExchangeAutoDiscoverError
-from ews.data import DistinguishedFolderId, WellKnownFolderName
-from ews.data import FolderClass
-from ews.errors import EWSMessageError, EWSCreateFolderError
-from ews.errors import EWSDeleteFolderError
-from ews.folder import Folder
-from ews.contact import Contact
+from . import utils
+from .utils import pretty_xml
+from .ews.autodiscover import EWSAutoDiscover, ExchangeAutoDiscoverError
+from .ews.data import DistinguishedFolderId, WellKnownFolderName
+from .ews.data import FolderClass
+from .ews.errors import EWSMessageError, EWSCreateFolderError
+from .ews.errors import EWSDeleteFolderError
+from .ews.folder import Folder
+from .ews.contact import Contact
 
-from ews.request_response import GetItemsRequest
-from ews.request_response import GetContactsRequest, GetContactsResponse
-from ews.request_response import FindItemsRequest, FindItemsResponse
-from ews.request_response import CreateItemsRequest, CreateItemsResponse
-from ews.request_response import DeleteItemsRequest, DeleteItemsResponse
-from ews.request_response import FindItemsLMTRequest, FindItemsLMTResponse
-from ews.request_response import (SearchContactByEmailRequest,
+from .ews.request_response import GetItemsRequest
+from .ews.request_response import GetContactsRequest, GetContactsResponse
+from .ews.request_response import FindItemsRequest, FindItemsResponse
+from .ews.request_response import CreateItemsRequest, CreateItemsResponse
+from .ews.request_response import DeleteItemsRequest, DeleteItemsResponse
+from .ews.request_response import FindItemsLMTRequest, FindItemsLMTResponse
+from .ews.request_response import (SearchContactByEmailRequest,
                                   SearchContactByEmailResponse)
-from ews.request_response import (MoveItemsRequest,
+from .ews.request_response import (MoveItemsRequest,
                                   MoveItemsResponse)
-from ews.request_response import UpdateItemsRequest, UpdateItemsResponse
-from ews.request_response import (SyncFolderItemsRequest,
+from .ews.request_response import UpdateItemsRequest, UpdateItemsResponse
+from .ews.request_response import (SyncFolderItemsRequest,
                                   SyncFolderItemsResponse)
-from ews.request_response import (FindCalendarItemsRequest,
+from .ews.request_response import (FindCalendarItemsRequest,
                                   FindCalendarItemsResponse)
-from ews.request_response import (GetCalendarItemsRequest,
+from .ews.request_response import (GetCalendarItemsRequest,
                                   GetCalendarItemsResponse)
-from ews.request_response import (FindCalendarItemsRequestBothDate,
+from .ews.request_response import (FindCalendarItemsRequestBothDate,
                                   FindCalendarItemsResponseBothDate)
-from ews.request_response import (FindCalendarItemsRequestDate,
+from .ews.request_response import (FindCalendarItemsRequestDate,
                                   FindCalendarItemsResponseDate)
-from ews.request_response import GetAttachmentsRequest
-from ews.request_response import CreateAttachmentRequest
-from ews.request_response import DeleteAttachmentRequest
-from ews.request_response import UpdateCalendarItemsRequest
-from ews.request_response import GetUserConfigurationRequest
-from ews.request_response import UpdateCategoryListRequest
-from ews.request_response import ConvertIdRequest
+from .ews.request_response import GetAttachmentsRequest
+from .ews.request_response import CreateAttachmentRequest
+from .ews.request_response import DeleteAttachmentRequest
+from .ews.request_response import UpdateCalendarItemsRequest
+from .ews.request_response import GetUserConfigurationRequest
+from .ews.request_response import UpdateCategoryListRequest
+from .ews.request_response import ConvertIdRequest
 
 
 from tornado import template
-from soap import SoapClient, SoapMessageError, QName_T
+from .soap import SoapClient, SoapMessageError, QName_T
 
-USER = u''
-PWD = u''
-EWS_URL = u''
+USER = ''
+PWD = ''
+EWS_URL = ''
 
 ##
 # Note: There is a feeeble attemp to mimick the names of classes and methods
@@ -505,7 +505,7 @@ class ExchangeService(object):
         logging.info('pimdb_ex:CreateItem() - creating items....done')
         resp_dict = resp.get_itemids()
         # as we only gave one item to create, we can use [0]
-        Id = resp_dict.keys()[0]
+        Id = list(resp_dict.keys())[0]
         CK = resp_dict[Id]
         logging.info('pimdb_ex:CreateItem() - RETURN VALUES: %s %s' % (Id, CK))
 
@@ -528,7 +528,7 @@ class ExchangeService(object):
         logging.info('pimdb_ex:CreateCalendarItem() - creating items....done')
         resp_dict = resp.get_itemids()
         # as we only gave one item to create, we can use [0]
-        Id = resp_dict.keys()[0]
+        Id = list(resp_dict.keys())[0]
         CK = resp_dict[Id]
         logging.info('pimdb_ex:CreateCalendarItem() '
                      '- RETURN VALUES: %s %s' % (Id, CK))
@@ -650,7 +650,7 @@ class ExchangeService(object):
         return self.soap.send(req, debug)
 
     def get_distinguished_folder(self, name):
-        elem = u'<t:DistinguishedFolderId Id="%s"/>' % name
+        elem = '<t:DistinguishedFolderId Id="%s"/>' % name
         req = self._render_template(
             utils.REQ_GET_FOLDER,
             folder_ids=elem,

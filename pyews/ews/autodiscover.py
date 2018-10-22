@@ -21,7 +21,7 @@
 
 import logging
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 class ExchangeAutoDiscoverError(Exception):
@@ -107,28 +107,28 @@ class EWSAutoDiscover:
 
         logging.debug('  trying url: %s', url)
 
-        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, top_level_url, self.user, self.pwd)
-        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
+        handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
 
         # Open the URL and hope for the best.
         try:
-            urllib2.build_opener(handler).open(url)
-        except IOError, e:
+            urllib.request.build_opener(handler).open(url)
+        except IOError as e:
             if hasattr(e, 'code'):
                 if e.code != 401:
-                    print 'We got another error'
-                    print e.code
+                    print('We got another error')
+                    print((e.code))
                 else:
-                    print
-                    print '** Headers: **'
-                    print e.headers
+                    print()
+                    print('** Headers: **')
+                    print((e.headers))
 
-    class HTTPRedirectHandlerNo302(urllib2.HTTPRedirectHandler):
+    class HTTPRedirectHandlerNo302(urllib.request.HTTPRedirectHandler):
 
         def http_error_302(self, req, fp, code, msg, headers):
-            print '** Inside 302 handler **'
-            print headers
-            return urllib2.HTTPRedirectHandler.http_error_302(self, req, fp,
+            print('** Inside 302 handler **')
+            print(headers)
+            return urllib.request.HTTPRedirectHandler.http_error_302(self, req, fp,
                                                               code, msg,
                                                               headers)

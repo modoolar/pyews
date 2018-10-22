@@ -23,8 +23,8 @@ import re
 import requests
 from requests.auth import HTTPBasicAuth
 import xml.etree.ElementTree as ET
-import utils
-from utils import pretty_xml
+from . import utils
+from .utils import pretty_xml
 import pdb
 
 E_NAMESPACE = 'http://schemas.microsoft.com/exchange/services/2006/errors'

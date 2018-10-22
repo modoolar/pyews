@@ -21,7 +21,7 @@
 import logging
 import pdb
 
-from item import (Item,
+from .item import (Item,
                   Field,
                   FieldURI,
                   ExtendedProperty,
@@ -45,7 +45,7 @@ class CField(Field):
 
     def write_to_xml_update(self):
         _logger.debug("PROCESSED TAG %s : %s" % (self.tag, self.value))
-        ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
+        ats = ['%s="%s"' % (k, v) for k, v in list(self.attrib.items()) if v]
         s = '<t:SetItemField>'
         s += '<t:FieldURI FieldURI="%s"/>' % self.furi
         s += '\n<t:Contact>'
@@ -368,7 +368,7 @@ class PostalAddresses(CField):
     def populate_from_node(self, node):
         for child in node:
             addr = PostalAddress()
-            for k, v in child.attrib.iteritems():
+            for k, v in list(child.attrib.items()):
                 addr.add_attrib(k, v)
             addr.populate_from_node(child)
             self.entries.append(addr)
@@ -384,7 +384,7 @@ class PostalAddresses(CField):
     def edit(self, key, update_dict):
         addr = self.get_address_from_key(key)
         if addr:
-            for k, v in update_dict.iteritems():
+            for k, v in list(update_dict.items()):
                 getattr(addr, k).value = v
 
     def write_to_xml_update(self):
@@ -460,7 +460,7 @@ class EmailAddresses(CField):
     def populate_from_node(self, node):
         for child in node:
             email = self.Email()
-            for k, v in child.attrib.iteritems():
+            for k, v in list(child.attrib.items()):
                 email.add_attrib(k, v)
 
             email.value = child.text
@@ -545,7 +545,7 @@ class ImAddresses(CField):
     def populate_from_node(self, node):
         for child in node:
             im = self.Im()
-            for k, v in child.attrib.iteritems():
+            for k, v in list(child.attrib.items()):
                 im.add_attrib(k, v)
 
             im.value = child.text
@@ -631,7 +631,7 @@ class PhoneNumbers(CField):
     def populate_from_node(self, node):
         for child in node:
             phone = self.Phone()
-            for k, v in child.attrib.iteritems():
+            for k, v in list(child.attrib.items()):
                 phone.add_attrib(k, v)
 
             phone.value = child.text
@@ -795,7 +795,7 @@ class Contact(Item):
         # @TODO factorize with init_from_resp maybe ?
         if 'exchange_id' not in data:
             self.categories.add('odoo')
-        for key in data.keys():
+        for key in list(data.keys()):
             if key == 'exchange_id' and data.get('exchange_id'):
                 self.itemid.set(data.get('exchange_id', ''))
 

@@ -37,7 +37,7 @@ _logger = logging.getLogger(__name__)
 EXCHANGE_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
-class ReadOnly:
+class ReadOnly(metaclass=ABCMeta):
 
     """
     When applied as a Mixin, this class will ensure that no XML is generated
@@ -51,7 +51,6 @@ class ReadOnly:
     order for multiple inheritance, the ReadOnly Mixin should come to the left
     of Field class or any its derived classes.
     """
-    __metaclass__ = ABCMeta
 
     def write_to_xml(self):
         return ''
@@ -60,12 +59,11 @@ class ReadOnly:
         return ''
 
 
-class Field:
+class Field(metaclass=ABCMeta):
 
     """
     Represents an XML Element
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, tag=None, text=None, boolean=False):
         self.tag = tag
@@ -91,15 +89,15 @@ class Field:
         self.attrib.update({key: val})
 
     def atts_as_xml(self):
-        ats = ['%s="%s"' % (k, v) for k, v in self.attrib.iteritems() if v]
+        ats = ['%s="%s"' % (k, v) for k, v in list(self.attrib.items()) if v]
         return ' '.join(ats)
 
     def value_as_xml(self):
         if self.value is not None:
             if self.boolean:
-                value = escape(unicode(self.value).lower())
+                value = escape(str(self.value).lower())
             else:
-                value = escape(unicode(self.value))
+                value = escape(str(self.value))
             return value
         return ''
 
@@ -107,7 +105,7 @@ class Field:
         self.children = self.get_children()
         # xmls = [x.write_to_xml() for x in self.children]
         xmls = [x.write_to_xml() for x in self.children if not (isinstance(
-            x, basestring) or x is None)]
+            x, str) or x is None)]
 
         return '\n'.join([y for y in xmls if y is not None])
 
@@ -471,7 +469,7 @@ class ExtendedProperty(Field):
         """
 
         all_none = True
-        for v in self.efuri.attrib.values():
+        for v in list(self.efuri.attrib.values()):
             if v is not None:
                 all_none = False
                 break
@@ -761,14 +759,12 @@ https://msdn.microsoft.com/en-us/library/office/aa581305(v=exchg.140).aspx
         Field.__init__(self, 'ReminderMinutesBeforeStart', text)
 
 
-class Item(Field):
+class Item(Field, metaclass=ABCMeta):
 
     """
     Abstract wrapper class around an Exchange Item object. Frequently an
     object of this type is instantiated from a response.
     """
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, service, parent_fid=None, resp_node=None, tag='Item',
                  additional_properties=None,
@@ -959,7 +955,7 @@ class Item(Field):
 
         try:
             return self.eprops_tagged[tag]
-        except KeyError, e:
+        except KeyError as e:
             return None
 
     def get_named_str_property(self, psetid, pname):
@@ -970,7 +966,7 @@ class Item(Field):
 
         try:
             return self.eprops_named_str[psetid][pname]
-        except KeyError, e:
+        except KeyError as e:
             return None
 
     def get_named_int_property(self, psetid, pid):
@@ -981,7 +977,7 @@ class Item(Field):
 
         try:
             return self.eprops_named_int[psetid][pid]
-        except KeyError, e:
+        except KeyError as e:
             logging.debug('Named int prop missing-psetid : %s, pid: 0x%x',
                           psetid, pid)
             return None
@@ -1023,7 +1019,7 @@ class Item(Field):
             setattr(self.mapping_dict_tag_obj[tag],
                     'value',
                     child.text)
-        elif tag == 'Categories':
+        elif tag == 'Categories' and hasattr(child, '_children'):
             for cat in child._children:
                 self.categories.add(cat.text)
         elif tag == 'Attachments':
